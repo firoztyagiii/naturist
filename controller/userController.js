@@ -21,3 +21,26 @@ exports.postSignup = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.postLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password)
+      throw new AppError(400, "Email and password are required");
+
+    const user = await User.findOne({ email });
+    if (!user) throw new AppError(400, "Invalid credentials");
+    const isPassSame = await user.checkPassword(password, user.password);
+    if (!isPassSame) throw new AppError(400, "Invalid credentials");
+    const token = user.generateJWTToken({ _id: user._id });
+
+    res.cookie("jwt", token, { secure: true, httpOnly: true });
+    res.status(200).json({
+      status: "success",
+      token: token,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
