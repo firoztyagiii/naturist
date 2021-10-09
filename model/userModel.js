@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password is required"],
     minlength: [6, "Password should be atleast 6 characters long"],
+    select: false,
   },
   confirmPassword: {
     type: String,
@@ -58,6 +59,10 @@ userSchema.methods.generateJWTToken = function (payload) {
   return jwt.sign(payload, process.env.JWTKEY, {
     expiresIn: "1d",
   });
+};
+
+userSchema.methods.isCookieExpired = function (expireTime) {
+  return Date.now() / 1000 > expireTime;
 };
 
 const User = mongoose.model("users", userSchema);

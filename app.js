@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
 
 dotenv.config({
   path: "./config.env",
@@ -7,6 +8,7 @@ dotenv.config({
 
 const app = express();
 
+app.use(cookieParser());
 app.use(express.json());
 
 const userRoute = require("./routes/userRoutes");
