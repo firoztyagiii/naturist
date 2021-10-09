@@ -12,10 +12,12 @@ app.use(cookieParser());
 app.use(express.json());
 
 const userRoute = require("./routes/userRoutes");
+const tourRoute = require("./routes/tourRoutes");
 const globalError = require("./controller/globalErrorController");
 const AppError = require("./utils/error");
 
 app.use("/user", userRoute);
+app.use("/tour", tourRoute);
 
 app.use("*", (req, res, next) => {
   next(new AppError(404, "Page not found"));

@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const User = require("../model/userModel");
+
 exports.isLoggedIn = async (req, res, next) => {
   try {
     if (!req.cookies.jwt && !req.headers.authorization)
@@ -26,7 +29,10 @@ exports.isLoggedIn = async (req, res, next) => {
       throw new AppError(400, "Cookie has been expired");
     }
     // TODO: //check if the password is changed after issuing the token
-    console.log("You are logged In");
+    req.user = {
+      _id: user._id,
+      name: user.name,
+    };
     next();
   } catch (err) {
     next(err);
