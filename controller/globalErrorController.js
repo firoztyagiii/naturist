@@ -9,10 +9,10 @@ module.exports = (err, req, res, next) => {
   }
 
   const errorCode = err.errorCode ? err.errorCode : 404;
-  const errorMessage = err.isOperational ? err.msg : message;
+  const errorMessage = err.isOperational ? err.msg : message.join(", ");
 
   res.status(errorCode).json({
-    status: err.status,
-    message: errorMessage,
+    status: err.status ? err.status : "Fail",
+    message: errorMessage ? errorMessage : "Something went wrong!",
   });
 };
