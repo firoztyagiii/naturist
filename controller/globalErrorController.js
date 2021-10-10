@@ -6,6 +6,8 @@ module.exports = (err, req, res, next) => {
     for (key in err.errors) {
       message.push(err.errors[key].message);
     }
+  } else if (err.name === "CastError") {
+    message.push(`Invalid ID ${err.value}`);
   }
 
   const errorCode = err.errorCode ? err.errorCode : 404;

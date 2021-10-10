@@ -88,12 +88,21 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+tourSchema.set("toObject", { virtuals: true });
+tourSchema.set("toJSON", { virtuals: true });
+
 tourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, {
     replacement: "-",
     lower: true,
   });
   next();
+});
+
+tourSchema.virtual("reviews", {
+  ref: "reviews",
+  localField: "_id",
+  foreignField: "tour",
 });
 
 const Tour = mongoose.model("tours", tourSchema);
