@@ -97,4 +97,5 @@ tourSchema.pre("save", function (next) {
 });
 
 const Tour = mongoose.model("tours", tourSchema);
+
 module.exports = Tour;

@@ -1,46 +1,71 @@
-class FilterQuery {
-  constructor(query, queryObject) {
-    this.query = query;
-    this.queryObject = queryObject;
-    this.newFilteredObject = {};
+const filterAPI = async (queryObject, model) => {
+  const defaultLimit = 3;
+  const newQueryObject = { ...queryObject };
+  [
+    "sort",
+    "page",
+    "limit",
+    "select",
+    "minprice",
+    "maxprice",
+    "mingroupsize",
+    "maxgroupsize",
+    "mintourlength",
+    "maxtourlength",
+  ].forEach((item) => {
+    delete newQueryObject[item];
+  });
+  let query;
+  query = model.find(newQueryObject);
+  if (queryObject.minprice) {
+    const minPrice = queryObject.minprice * 1;
+    query = query.find({ price: { $gt: minPrice } });
+  }
+  if (queryObject.maxprice) {
+    const maxPrice = queryObject.maxprice * 1;
+    query = query.find({ price: { $lt: maxPrice } });
+  }
+  if (queryObject.mingroupsize) {
+    const minGroupSize = queryObject.minGroupSize * 1;
+    query = query.find({ groupSize: { $gt: minGroupSize } });
   }
 
-  filter() {
-    this.newFilteredObject = { ...this.queryObject };
-    ["page", "limit", "select"].forEach((key) => {
-      delete this.newFilteredObject[key];
-    });
-    this.query = this.query.find(this.newFilteredObject);
-    return this;
+  if (queryObject.maxgroupsize) {
+    const maxgroupsize = queryObject.maxgroupsize * 1;
+    query = query.find({ groupSize: { $lt: maxgroupsize } });
   }
 
-  sort() {
-    if (this.queryObject.sort) {
-      let sortObject = {};
-      this.queryObject.sort.split(",").forEach((item) => {
-        if (item.toString().startsWith("-")) {
-          sortObject[item.split("-")[1]] = -1;
-        } else {
-          sortObject[item] = 1;
-        }
-      });
-      this.query = this.query.sort(sortObject);
-    } else {
-      this.query = this.query.sort("-_id");
-    }
-    return this;
+  if (queryObject.mintourlength) {
+    const mintourlength = queryObject.mintourlength * 1;
+    query = query.find({ tourLength: { $gt: mintourlength } });
   }
 
-  select() {
-    if (this.queryObject.select) {
-      this.query = this.query.select(
-        this.queryObject.select.split(",").join(" ")
-      );
-    } else {
-      this.query = this.query.select("-__v");
-    }
-    return this;
+  if (queryObject.maxtourlength) {
+    const maxtourlength = queryObject.maxtourlength * 1;
+    query = query.find({ tourLength: { $lt: maxtourlength } });
   }
-}
+  if (queryObject.sort) {
+    const sortData = queryObject.sort.split(",").join(" ");
+    query = query.sort(sortData);
+  }
+  if (queryObject.select) {
+    const selectData = queryObject.select.split(",").join(" ");
+    query = query.select(selectData);
+  }
+  if (queryObject.page) {
+    const totalDoc = await query.model.countDocuments(query);
+    const pageNumber = queryObject.page * 1;
+    const limit = queryObject.limit ? queryObject.limit * 1 : defaultLimit;
+    const totalPage = totalDoc / limit;
+    query = query.skip((pageNumber - 1) * limit);
+  }
+  if (queryObject.limit) {
+    const limit = queryObject.limit * 1;
+    query = query.limit(limit);
+  } else {
+    query = query.limit(defaultLimit);
+  }
+  return query;
+};
 
-module.exports = FilterQuery;
+module.exports = filterAPI;

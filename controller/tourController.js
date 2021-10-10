@@ -1,5 +1,5 @@
 const Tour = require("../model/tourModel");
-const FilterQuery = require("../utils/filterQuery");
+const filterQuery = require("../utils/filterQuery");
 
 exports.postTour = async (req, res, next) => {
   try {
@@ -39,21 +39,16 @@ exports.postTour = async (req, res, next) => {
 
 exports.getTours = async (req, res, next) => {
   try {
-    const query = Tour.find();
-    const tours = await new FilterQuery(query, req.query)
-      .filter()
-      .sort()
-      .select()
-      .query // --> Query (Find) --> Projection (Select) --> Sort --> Skip --> Limit
-      .res.status(200)
-      .json({
-        status: "success",
-        result: tours.length,
-        data: {
-          tours,
-        },
-      });
+    const query = filterQuery(req.query, Tour);
+    const data = await query;
+    res.status(200).json({
+      status: "success",
+      result: data.length,
+      data: {
+        tours: data,
+      },
+    });
   } catch (err) {
-    next(err);
+    console.log(err);
   }
 };
