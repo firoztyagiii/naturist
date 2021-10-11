@@ -52,7 +52,8 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  OTP: Number,
+  passwordResetToken: String,
+  passwordResetTokenExpires: Date,
   activationToken: {
     type: String,
   },

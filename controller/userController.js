@@ -113,3 +113,46 @@ exports.activateAccount = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const email = req.body.email;
+    if (!email)
+      throw new AppError(
+        400,
+        "Email is required in order to reset the password"
+      );
+    const user = await Model.User.findOne({ email });
+    if (!user)
+      throw new AppError(400, "No user is found with this email address");
+    console.log(user);
+    const hash = crypto.randomBytes(64).toString("hex");
+    const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+    user.passwordResetToken = encryptedHash;
+    user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+    user.save({ validateBeforeSave: false });
+    sendMail(
+      user.email,
+      "Reset your Password!",
+      `<p> /user/reset-password/${hash} </p>`
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Email for resetting the password has been sent",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  const resetToken = req.params.resetToken;
+  const encryptedHash = crypto.createHash("sha256").update(resetToken).digest();
+
+  if (!req.body.password || !req.body.confirmPassword)
+    throw new AppError(400, "Password and confirm password are required");
+  const user = await Model.User.findOne({
+    passwordResetToken: encryptedHash,
+  });
+  console.log(new Date(user.passwordResetTokenExpires).toString());
+};

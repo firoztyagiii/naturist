@@ -13,4 +13,7 @@ router
 
 router.route("/login").post(userController.postLogin);
 
+router.route("/forgot-password").post(userController.forgotPassword);
+router.route("/reset-password/:resetToken").post(userController.resetPassword);
+
 module.exports = router;
