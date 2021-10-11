@@ -57,7 +57,14 @@ const userSchema = new mongoose.Schema({
   activationToken: {
     type: String,
   },
+  is2FAEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  twoFAToken: String,
+  twoFATokenExpires: Date,
   passwordChangedAt: Date,
+  OTP: Number,
 });
 
 userSchema.pre("save", async function (next) {

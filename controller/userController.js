@@ -51,15 +51,33 @@ exports.postLogin = async (req, res, next) => {
 
     const user = await Model.User.findOne({ email }).select("+password");
     if (!user) throw new AppError(400, "Invalid credentials");
+
+    const isPassSame = await user.checkPassword(password, user.password);
+
+    if (!isPassSame) throw new AppError(400, "Invalid credentials");
+
     if (!user.active)
       throw new AppError(
         400,
         "Account is not active, Please activate your account first."
       );
 
-    const isPassSame = await user.checkPassword(password, user.password);
-
-    if (!isPassSame) throw new AppError(400, "Invalid credentials");
+    if (user.is2FAEnabled) {
+      const hash = crypto.randomBytes(32).toString("hex");
+      const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+      const OTP = Math.floor(1000 + Math.random() * 9000);
+      user.OTP = OTP;
+      user.twoFAToken = encryptedHash;
+      user.save({ validateBeforeSave: false });
+      sendMail(
+        user.email,
+        "Reset your Password!",
+        `
+       <p> ${process.env.DOMAIN}/user/2fa/${hash} </p> 
+      <p>${OTP}</p>`
+      );
+      return;
+    }
 
     const token = user.generateJWTToken({ _id: user._id });
     res.cookie("jwt", token);
@@ -171,6 +189,31 @@ exports.resetPassword = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       message: "Password changed",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.twoFA = async (req, res, next) => {
+  try {
+    const twoFAToken = req.params.token;
+    const encryptedHash = crypto
+      .createHash("sha256")
+      .update(twoFAToken)
+      .digest();
+
+    const OTP = req.body.otp;
+    const user = await Model.User.findOne({
+      twoFAToken: encryptedHash,
+    });
+    if (!user) throw new AppError(400, "Invalid 2FA token/URL");
+    if (user.OTP != OTP) throw new AppError(400, "Incorrect OTP");
+    const token = user.generateJWTToken({ _id: user._id });
+    res.cookie("jwt", token);
+    res.status(200).json({
+      status: "success",
+      token: token,
     });
   } catch (err) {
     next(err);

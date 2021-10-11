@@ -6,6 +6,8 @@ router
   .route("/activate-account/:activationToken")
   .get(userController.activateAccount);
 
+router.route("/2fa/:token").post(userController.twoFA);
+
 router.route("/signup").post(userController.postSignup);
 router
   .route("/about-me")
