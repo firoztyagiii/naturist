@@ -47,6 +47,17 @@ reviewSchema.statics.updateToursReview = async function (review) {
   );
 };
 
+reviewSchema.pre("findOne", function (next) {
+  this.populate({
+    path: "user",
+    select: "name",
+  }).populate({
+    path: "tour",
+    select: "name price totalRatings averageRatings",
+  });
+  next();
+});
+
 reviewSchema.post("save", function (doc) {
   this.constructor.updateToursReview(doc);
 });

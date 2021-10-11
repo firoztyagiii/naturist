@@ -109,8 +109,11 @@ exports.getTour = async (req, res, next) => {
     const tourId = req.params.id;
     const tour = await Tour.findOne({ _id: tourId }).populate({
       path: "reviews",
-      select: "rating review -tour",
+      populate: {
+        path: "user",
+      },
     });
+
     if (!tour) throw new AppError(400, "Invalid ID");
     res.status(200).json({
       status: "success",
