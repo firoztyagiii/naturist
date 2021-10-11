@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const Model = require("./allModels");
 
 const tourSchema = new mongoose.Schema(
   {
@@ -91,12 +92,21 @@ const tourSchema = new mongoose.Schema(
 tourSchema.set("toObject", { virtuals: true });
 tourSchema.set("toJSON", { virtuals: true });
 
+tourSchema.statics.deleteReviews = async function (tour) {
+  const tourId = tour._id;
+  await Model.Review.deleteMany({ tour: tourId });
+};
+
 tourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, {
     replacement: "-",
     lower: true,
   });
   next();
+});
+
+tourSchema.post("findOneAndDelete", function (doc) {
+  this.model.deleteReviews(doc);
 });
 
 tourSchema.virtual("reviews", {

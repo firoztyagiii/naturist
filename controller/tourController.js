@@ -1,4 +1,4 @@
-const Tour = require("../model/tourModel");
+const Model = require("../model/allModels");
 const AppError = require("../utils/error");
 const filterQuery = require("../utils/filterQuery");
 
@@ -16,7 +16,7 @@ exports.postTour = async (req, res, next) => {
       dates,
     } = req.body;
 
-    const tour = await Tour.create({
+    const tour = await Model.Tour.create({
       name,
       location,
       difficulty,
@@ -40,7 +40,7 @@ exports.postTour = async (req, res, next) => {
 
 exports.getTours = async (req, res, next) => {
   try {
-    const query = filterQuery(req.query, Tour);
+    const query = filterQuery(req.query, Model.Tour);
     const data = await query;
     res.status(200).json({
       status: "success",
@@ -68,7 +68,7 @@ exports.patchTour = async (req, res, next) => {
       dates,
     } = req.body;
     const tourId = req.params.id;
-    const tour = await Tour.findOneAndUpdate(
+    const tour = await Model.Tour.findOneAndUpdate(
       { _id: tourId },
       {
         name,
@@ -97,17 +97,18 @@ exports.patchTour = async (req, res, next) => {
 exports.deleteTour = async (req, res, next) => {
   try {
     const tourId = req.params.id;
-    const tour = await Tour.findOneAndDelete({ _id: tourId });
+    await Model.Tour.findOneAndDelete({ _id: tourId });
     res.status(200).json({});
   } catch (err) {
-    res.status(400).json({});
+    err.message = "Something went wrong";
+    next(err);
   }
 };
 
 exports.getTour = async (req, res, next) => {
   try {
     const tourId = req.params.id;
-    const tour = await Tour.findOne({ _id: tourId }).populate({
+    const tour = await Model.Tour.findOne({ _id: tourId }).populate({
       path: "reviews",
       populate: {
         path: "user",

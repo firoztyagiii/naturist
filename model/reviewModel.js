@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Tour = require("./tourModel");
+const Model = require("./allModels");
 
 const reviewSchema = new mongoose.Schema({
   review: {
@@ -25,26 +25,30 @@ const reviewSchema = new mongoose.Schema({
 });
 
 reviewSchema.statics.updateToursReview = async function (review) {
-  const data = await review.constructor.aggregate([
-    { $match: { tour: review.tour } },
-    {
-      $group: {
-        _id: null,
-        totalRatings: { $sum: 1 },
-        averageRatings: { $avg: "$rating" },
+  try {
+    const data = await review.constructor.aggregate([
+      { $match: { tour: review.tour } },
+      {
+        $group: {
+          _id: null,
+          totalRatings: { $sum: 1 },
+          averageRatings: { $avg: "$rating" },
+        },
       },
-    },
-  ]);
-  const tour = await Tour.findOneAndUpdate(
-    { _id: review.tour },
-    {
-      totalRatings: data[0].totalRatings,
-      averageRatings: data[0].averageRatings,
-    },
-    {
-      new: true,
-    }
-  );
+    ]);
+    await Model.Tour.findOneAndUpdate(
+      { _id: review.tour },
+      {
+        totalRatings: data[0].totalRatings,
+        averageRatings: data[0].averageRatings,
+      },
+      {
+        new: true,
+      }
+    );
+  } catch (err) {
+    throw err;
+  }
 };
 
 reviewSchema.pre("findOne", function (next) {
@@ -58,8 +62,28 @@ reviewSchema.pre("findOne", function (next) {
   next();
 });
 
-reviewSchema.post("save", function (doc) {
-  this.constructor.updateToursReview(doc);
+reviewSchema.post("save", async function (doc, next) {
+  try {
+    this.constructor.updateToursReview(doc);
+  } catch (err) {
+    next(err);
+  }
+});
+
+reviewSchema.post("findOneAndUpdate", async function (doc, next) {
+  try {
+    this.model.updateToursReview(doc);
+  } catch (err) {
+    next(err);
+  }
+});
+
+reviewSchema.post("findOneAndDelete", async function (doc, next) {
+  try {
+    this.model.updateToursReview(doc);
+  } catch (err) {
+    next(err);
+  }
 });
 
 const Review = mongoose.model("reviews", reviewSchema);

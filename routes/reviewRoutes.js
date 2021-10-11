@@ -7,6 +7,10 @@ router
   .post(authController.isLoggedIn, reviewController.postReview)
   .get(reviewController.getReviews);
 
-router.route("/:reviewId").get(reviewController.getReview);
+router
+  .route("/:reviewId")
+  .get(reviewController.getReview)
+  .patch(reviewController.patchReview)
+  .delete(reviewController.deleteReview);
 
 module.exports = router;
