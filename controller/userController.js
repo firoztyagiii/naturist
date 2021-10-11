@@ -125,7 +125,6 @@ exports.forgotPassword = async (req, res, next) => {
     const user = await Model.User.findOne({ email });
     if (!user)
       throw new AppError(400, "No user is found with this email address");
-    console.log(user);
     const hash = crypto.randomBytes(64).toString("hex");
     const encryptedHash = crypto.createHash("sha256").update(hash).digest();
     user.passwordResetToken = encryptedHash;
@@ -146,13 +145,34 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-  const resetToken = req.params.resetToken;
-  const encryptedHash = crypto.createHash("sha256").update(resetToken).digest();
+  try {
+    const resetToken = req.params.resetToken;
+    const encryptedHash = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest();
 
-  if (!req.body.password || !req.body.confirmPassword)
-    throw new AppError(400, "Password and confirm password are required");
-  const user = await Model.User.findOne({
-    passwordResetToken: encryptedHash,
-  });
-  console.log(new Date(user.passwordResetTokenExpires).toString());
+    if (!req.body.password || !req.body.confirmPassword)
+      throw new AppError(400, "Password and confirm password are required");
+    const user = await Model.User.findOne({
+      passwordResetToken: encryptedHash,
+    });
+    if (!user) throw new AppError(400, "Link expired or invalid");
+    if (Date.parse(user.passwordResetTokenExpires) < Date.now()) {
+      user.passwordResetToken = undefined;
+      user.passwordResetTokenExpires = undefined;
+      user.save({ validateBeforeSave: false });
+      throw new AppError(400, "Link expired or invalidd");
+    }
+    user.password = req.body.password;
+    user.confirmPassword = req.body.confirmPassword;
+    user.passwordChangedAt = Date.now();
+    user.save();
+    res.status(200).json({
+      status: "success",
+      message: "Password changed",
+    });
+  } catch (err) {
+    next(err);
+  }
 };

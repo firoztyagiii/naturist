@@ -57,6 +57,7 @@ const userSchema = new mongoose.Schema({
   activationToken: {
     type: String,
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -64,6 +65,8 @@ userSchema.pre("save", async function (next) {
   const encPass = await bcrypt.hash(this.password, 12);
   this.password = encPass;
   this.confirmPassword = undefined;
+  this.passwordResetToken = undefined;
+  this.passwordResetTokenExpires = undefined;
 });
 
 userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
