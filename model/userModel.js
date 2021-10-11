@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -51,8 +52,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  OPT: {
-    type: Number,
+  OTP: Number,
+  activationToken: {
+    type: String,
   },
 });
 
@@ -66,6 +68,11 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
   return await bcrypt.compare(inputPassword, DBPassword);
 };
+
+// userSchema.methods.generateOTPandHash = function () {
+//   const hash = crypto.randomBytes(32).toString("hex");
+//   const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+// };
 
 userSchema.methods.generateJWTToken = function (payload) {
   return jwt.sign(payload, process.env.JWTKEY, {
