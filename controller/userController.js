@@ -223,3 +223,8 @@ exports.twoFA = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.logout = (req, res, next) => {
+  res.cookie("jwt", "");
+  res.status(301).json({});
+};
