@@ -76,7 +76,9 @@ exports.postLogin = async (req, res, next) => {
        <p> ${process.env.DOMAIN}/user/2fa/${hash} </p> 
       <p>${OTP}</p>`
       );
-      return;
+      return res.status(200).json({
+        message: "OTP sent to your email address",
+      });
     }
 
     const token = user.generateJWTToken({ _id: user._id });
@@ -209,6 +211,8 @@ exports.twoFA = async (req, res, next) => {
     });
     if (!user) throw new AppError(400, "Invalid 2FA token/URL");
     if (user.OTP != OTP) throw new AppError(400, "Incorrect OTP");
+    user.OTP = undefined;
+    user.save({ validateBeforeSave: false });
     const token = user.generateJWTToken({ _id: user._id });
     res.cookie("jwt", token);
     res.status(200).json({
