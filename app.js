@@ -29,7 +29,7 @@ app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
 
-app.use("/", (req, res, next) => {
+app.get("/", (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Use /api endpoints",
