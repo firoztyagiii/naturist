@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 dotenv.config({
   path: "./config.env",
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
+app.use(cors());
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");

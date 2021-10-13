@@ -18,8 +18,6 @@ exports.isLoggedIn = async (req, res, next) => {
       token = authToken;
     }
 
-    console.log(token);
-
     const payload = jwt.verify(token, process.env.JWTKEY);
     const user = await User.findOne({ _id: payload._id });
     if (!user)

@@ -82,7 +82,11 @@ exports.postLogin = async (req, res, next) => {
     }
 
     const token = user.generateJWTToken({ _id: user._id });
-    res.cookie("jwt", token);
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: false,
+      domain: "http://localhost:5500",
+    });
     res.status(200).json({
       status: "success",
       token: token,
