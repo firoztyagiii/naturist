@@ -15,6 +15,7 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 app.use(cors());
+heroku;
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
@@ -23,9 +24,17 @@ const globalError = require("./controller/globalErrorController");
 const AppError = require("./utils/error");
 
 //API Endpoints
+
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
+
+app.use("/", (req, res, next) => {
+  res.status(200).json({
+    status: "success",
+    message: "Use /api endpoints",
+  });
+});
 
 app.use("*", (req, res, next) => {
   next(new AppError(404, "Page not found"));
