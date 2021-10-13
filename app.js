@@ -29,15 +29,8 @@ app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
 
-app.get("/", (req, res, next) => {
-  res.status(200).json({
-    status: "success",
-    message: "Use /api endpoints",
-  });
-});
-
 app.use("*", (req, res, next) => {
-  next(new AppError(404, "Page not found"));
+  next(new AppError(404, "Use /api endpoints"));
 });
 
 app.use(globalError);
