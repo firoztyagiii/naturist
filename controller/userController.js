@@ -85,7 +85,6 @@ exports.postLogin = async (req, res, next) => {
     res.cookie("jwt", token, {
       httpOnly: true,
       secure: false,
-      domain: "http://localhost:5500",
     });
     res.status(200).json({
       status: "success",
