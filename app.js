@@ -19,9 +19,24 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(
-  cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" })
-);
+const whiteListDomain = [
+  "https://naturist-front.herokuapp.com",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+];
+
+const corsOption = {
+  origin: function (origin, callback) {
+    if (whiteListDomain.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOption));
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
