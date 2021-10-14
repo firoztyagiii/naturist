@@ -19,7 +19,7 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(cors());
+app.use(cors({ credentials: true }));
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
