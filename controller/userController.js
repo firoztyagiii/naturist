@@ -84,7 +84,8 @@ exports.postLogin = async (req, res, next) => {
     const token = user.generateJWTToken({ _id: user._id });
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: false,
+      secure: true,
+      sameSite: "none",
     });
     res.status(200).json({
       status: "success",
