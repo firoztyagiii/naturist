@@ -19,7 +19,9 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(cors({ credentials: true, origin: "http://localhost:5500" }));
+app.use(
+  cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" })
+);
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
