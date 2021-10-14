@@ -234,5 +234,6 @@ exports.logout = (req, res, next) => {
     secure: true,
     sameSite: "none",
   });
+  //add
   res.status(200).json({ status: "successs" });
 };
