@@ -229,6 +229,10 @@ exports.twoFA = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  res.cookie("jwt", "");
-  res.status(301).json({});
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  res.status(200).json({ status: "successs" });
 };
