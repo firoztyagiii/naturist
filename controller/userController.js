@@ -32,7 +32,7 @@ exports.postSignup = async (req, res, next) => {
     sendMail(
       user.email,
       "Activate your account!",
-      `<p>${process.env.FRONT_END_DOMAIN}/user/activate-account?verify=${hash}</p>`
+      `<p>${process.env.FRONT_END_DOMAIN}/activate-account.html?verify=${hash}</p>`
     );
 
     res.status(201).json({
@@ -79,7 +79,7 @@ exports.postLogin = async (req, res, next) => {
         user.email,
         "Reset your Password!",
         `
-       <p> ${process.env.DOMAIN}/user/2fa/${hash} </p> 
+       <p> ${process.env.FRONT_END_DOMAIN}/user/2fa/${hash} </p> 
       <p>${OTP}</p>`
       );
       return res.status(200).json({
