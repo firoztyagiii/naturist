@@ -32,7 +32,7 @@ exports.postSignup = async (req, res, next) => {
     sendMail(
       user.email,
       "Activate your account!",
-      `<p> /user/activate-account/${hash} </p>`
+      `<p>${process.env.FRONT_END_DOMAIN}/user/activate-account?verify=${hash}</p>`
     );
 
     res.status(201).json({
@@ -123,7 +123,7 @@ exports.aboutMe = async (req, res, next) => {
 
 exports.activateAccount = async (req, res, next) => {
   try {
-    const activationToken = req.params.activationToken;
+    const activationToken = req.query.verify;
     if (!activationToken) throw new AppError(400, "Invalid token or expired");
     const encryptedToken = crypto
       .createHash("sha256")

@@ -15,9 +15,7 @@ router.route("/forgot-password").post(userController.forgotPassword);
 router.route("/reset-password/:resetToken").post(userController.resetPassword);
 
 //Authentication
-router
-  .route("/activate-account/:activationToken")
-  .get(userController.activateAccount);
+router.route("/activate-account").get(userController.activateAccount);
 
 router.route("/2fa/:token").post(userController.twoFA);
 
