@@ -32,7 +32,7 @@ exports.postSignup = async (req, res, next) => {
     sendMail(
       user.email,
       "Activate your account!",
-      `<p>${process.env.FRONT_END_DOMAIN}/activate-account.html?verify=${hash}</p>`
+      `<a href="http://127.0.0.1:550/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
     );
 
     res.status(201).json({
