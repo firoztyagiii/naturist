@@ -10,6 +10,12 @@ exports.postSignup = async (req, res, next) => {
     if (!name || !email || !password || !confirmPassword)
       throw new AppError(400, "Invalid Input");
 
+    const isAlreadyExisted = await Model.User.findOne({ email: email });
+
+    if (isAlreadyExisted) {
+      throw new AppError("403", "Email already exists");
+    }
+
     const user = await Model.User.create({
       name,
       email,
