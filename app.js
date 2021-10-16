@@ -1,7 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
@@ -26,42 +25,18 @@ const whiteListDomain = [
   "http://localhost:9090",
 ];
 
-// const corsOption = {
-//   origin: function (origin, callback) {
-//     if (whiteListDomain.indexOf(origin) !== -1) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-//   credentials: true,
-// };
-
 app.use((req, res, next) => {
-  console.log(req.headers);
   const domain = req.headers.origin;
-  console.log("domain -->", domain);
-  console.log(
-    "whiteListDomain.includes(domain) -->",
-    whiteListDomain.includes(domain)
-  );
   if (whiteListDomain.includes(domain)) {
     res.setHeader("Access-Control-Allow-Origin", domain);
   }
-
   res.setHeader("Access-Control-Allow-Credentials", true);
-
   next();
 });
 
-app.use((req, res, next) => {
-  const headers = res.getHeaders();
-  console.log(headers);
-  next();
-});
-// app.use(helmet());
-// app.use(mongoSanitize());
-// app.use(xssClean());
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xssClean());
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
