@@ -32,7 +32,7 @@ exports.postSignup = async (req, res, next) => {
     sendMail(
       user.email,
       "Activate your account!",
-      `<a href="http://127.0.0.1:5500/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
+      `<a href="https://naturist-front.herokuapp.com/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
     );
 
     res.status(201).json({
