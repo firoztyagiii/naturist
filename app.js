@@ -19,11 +19,12 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-// const whiteListDomain = [
-//   "https://naturist-front.herokuapp.com",
-//   "http://127.0.0.1:5500",
-//   "http://localhost:5500",
-// ];
+const whiteListDomain = [
+  "https://naturist-front.herokuapp.com",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://localhost:9090",
+];
 
 // const corsOption = {
 //   origin: function (origin, callback) {
@@ -36,15 +37,31 @@ app.set("views", "views");
 //   credentials: true,
 // };
 
-app.use(
-  cors({
-    origin: ["https://naturist-front.herokuapp.com", "http://127.0.0.1:5500"],
-    credentials: true,
-  })
-);
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(xssClean());
+app.use((req, res, next) => {
+  console.log(req.headers);
+  const domain = req.headers.origin;
+  console.log("domain -->", domain);
+  console.log(
+    "whiteListDomain.includes(domain) -->",
+    whiteListDomain.includes(domain)
+  );
+  if (whiteListDomain.includes(domain)) {
+    res.setHeader("Access-Control-Allow-Origin", domain);
+  }
+
+  res.setHeader("Access-Control-Allow-Credentials", true);
+
+  next();
+});
+
+app.use((req, res, next) => {
+  const headers = res.getHeaders();
+  console.log(headers);
+  next();
+});
+// app.use(helmet());
+// app.use(mongoSanitize());
+// app.use(xssClean());
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
