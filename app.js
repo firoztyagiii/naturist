@@ -53,7 +53,7 @@ app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
 
 app.use("*", (req, res, next) => {
-  next(new AppError(404, "Use /api endpoints"));
+  next(new AppError(404, "Use /api/ endpoints"));
 });
 
 app.use(globalError);
