@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
+const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
 
@@ -25,6 +26,20 @@ const whiteListDomain = [
   "http://localhost:9090",
 ];
 
+// app.use((req, res, next) => {
+//   const domain = req.headers.origin;
+//   if (whiteListDomain.includes(domain)) {
+//     res.setHeader("Access-Control-Allow-Origin", domain);
+//   }
+//   res.setHeader("Access-Control-Allow-Credentials", true);
+//   next();
+// });
+
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(cors());
+
 app.use((req, res, next) => {
   const domain = req.headers.origin;
   if (whiteListDomain.includes(domain)) {
@@ -33,10 +48,6 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
   next();
 });
-
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(xssClean());
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
