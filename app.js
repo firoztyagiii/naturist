@@ -26,28 +26,10 @@ const whiteListDomain = [
   "http://localhost:9090",
 ];
 
-// app.use((req, res, next) => {
-//   const domain = req.headers.origin;
-//   if (whiteListDomain.includes(domain)) {
-//     res.setHeader("Access-Control-Allow-Origin", domain);
-//   }
-//   res.setHeader("Access-Control-Allow-Credentials", true);
-//   next();
-// });
-
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
-app.use(cors());
-
-app.use((req, res, next) => {
-  const domain = req.headers.origin;
-  if (whiteListDomain.includes(domain)) {
-    res.setHeader("Access-Control-Allow-Origin", domain);
-  }
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  next();
-});
+app.use(cors({ credentials: true, origin: "http://localhost:5500" }));
 
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");

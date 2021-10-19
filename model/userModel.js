@@ -64,6 +64,11 @@ const userSchema = new mongoose.Schema({
   twoFATokenExpires: Date,
   passwordChangedAt: Date,
   OTP: Number,
+  updateEmailToken: String,
+  updateEmailTokenExpires: Date,
+  emailUpdatedAt: Date,
+  emailChangingOTP: Number,
+  emailToChange: String,
 });
 
 userSchema.pre("save", async function (next) {
@@ -86,7 +91,7 @@ userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
 
 userSchema.methods.generateJWTToken = function (payload) {
   return jwt.sign(payload, process.env.JWTKEY, {
-    expiresIn: "1d",
+    expiresIn: "1h",
   });
 };
 

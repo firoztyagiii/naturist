@@ -2,6 +2,7 @@ const Model = require("../model/allModels");
 const AppError = require("../utils/error");
 const sendMail = require("../utils/sendMail");
 const crypto = require("crypto");
+const validator = require("validator");
 
 exports.postSignup = async (req, res, next) => {
   try {
@@ -32,7 +33,7 @@ exports.postSignup = async (req, res, next) => {
     sendMail(
       user.email,
       "Activate your account!",
-      `<a href="https://naturist-front.herokuapp.com/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
+      `<a href="${process.env.DOMAIN}/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
     );
 
     res.status(201).json({
@@ -79,7 +80,7 @@ exports.postLogin = async (req, res, next) => {
         user.email,
         "Reset your Password!",
         `
-       <p> ${process.env.FRONT_END_DOMAIN}/user/2fa/${hash} </p> 
+       <p> ${process.env.DOMAIN}/user/2fa/${hash} </p> 
       <p>${OTP}</p>`
       );
       return res.status(200).json({
@@ -90,8 +91,9 @@ exports.postLogin = async (req, res, next) => {
     const token = user.generateJWTToken({ _id: user._id });
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: false,
+      // sameSite: "none",
+      maxAge: 3600 * 1000,
     });
     res.status(200).json({
       status: "success",
@@ -163,20 +165,21 @@ exports.forgotPassword = async (req, res, next) => {
     sendMail(
       user.email,
       "Reset your Password!",
-      `<p> /user/reset-password/${hash} </p>`
+      `<p> ${process.env.DOMAIN}/reset-password.html?token=${hash} </p>`
     );
     res.status(200).json({
       status: "success",
       message: "Email for resetting the password has been sent",
     });
   } catch (err) {
+    // console.log(err);
     next(err);
   }
 };
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const resetToken = req.params.resetToken;
+    const resetToken = req.query.token;
     const encryptedHash = crypto
       .createHash("sha256")
       .update(resetToken)
@@ -187,13 +190,13 @@ exports.resetPassword = async (req, res, next) => {
     const user = await Model.User.findOne({
       passwordResetToken: encryptedHash,
     });
-    if (!user) throw new AppError(400, "Link expired or invalid");
+    if (!user) throw new AppError(400, "Invalid link or expired");
     if (Date.parse(user.passwordResetTokenExpires) < Date.now()) {
-      user.passwordResetToken = undefined;
-      user.passwordResetTokenExpires = undefined;
       user.save({ validateBeforeSave: false });
-      throw new AppError(400, "Link expired or invalidd");
+      throw new AppError(400, "Link expired or invalid");
     }
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
     user.password = req.body.password;
     user.confirmPassword = req.body.confirmPassword;
     user.passwordChangedAt = Date.now();
@@ -242,4 +245,141 @@ exports.logout = (req, res, next) => {
   });
   //add
   res.status(200).json({ status: "successs" });
+};
+
+exports.updateMePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      throw new AppError(400, "Invalid inputs");
+    }
+    const user = await Model.User.findOne({ _id: req.user._id }).select(
+      "+password"
+    );
+    const isPasswordSame = await user.checkPassword(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordSame) {
+      throw new AppError(401, "Incorrect password");
+    }
+    user.password = newPassword;
+    user.confirmPassword = confirmNewPassword;
+    user.passwordChangedAt = Date.now();
+    await user.save();
+    res.status(201).json({
+      status: "success",
+      message: "Password changed successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateMeInfo = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      throw new AppError(400, "Name or email is required to update the info");
+    }
+    const user = await Model.User.findOne({ _id: req.user._id });
+    user.name = name;
+    await user.save({ validateBeforeSave: false });
+    res.status(201).json({
+      status: "success",
+      message: "Info changed successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateMeEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!validator.isEmail(email)) {
+      throw new AppError(400, "Invalid email address");
+    }
+
+    const existedUser = await Model.User.findOne({ email });
+
+    if (existedUser) {
+      throw new AppError(400, "Email already in use!");
+    }
+
+    const user = await Model.User.findOne({ _id: req.user._id });
+    const emailUpdatedAt = user.emailUpdatedAt;
+
+    const day = 60 * 60 * 24;
+
+    if (emailUpdatedAt) {
+      const canChangeEmailOn = new Date(emailUpdatedAt).getTime() + 15 * day;
+      if (new Date() < new Date(canChangeEmailOn)) {
+        throw new AppError(
+          400,
+          `You can only change email once in 15 days, Last changed at ${new Date(
+            emailUpdatedAt
+          ).toString()}`
+        );
+      }
+    }
+    const OTP = Math.floor(1000 + Math.random() * 9000);
+    const hash = crypto.randomBytes(64).toString("hex");
+    const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+    user.upateEmailToken = encryptedHash;
+    user.emailChangingOTP = OTP;
+    user.updateEmailTokenExpires = Date.now() + 1000 * 600;
+    user.emailToChange = email.trim().toLowerCase();
+    await user.save({ validateBeforeSave: false });
+    sendMail(
+      email,
+      "Update Email Address OTP",
+      `${process.env.DOMAIN}/update-email?token=${hash}
+      and the OTP is ${OTP}`
+    );
+    res.status(201).json({
+      status: "success",
+      message: "OTP sent to the new email address",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const token = req.query.token;
+    const { OTP } = req.body;
+    if (!token) {
+      throw new AppError(403, "Invalid token or expired!");
+    }
+    if (!OTP) {
+      throw new AppError(400, "No OTP found!");
+    }
+    const encryptedHash = crypto.createHash("sha256").update(token).digest();
+    const user = await Model.User.findOne({ upateEmailToken: encryptedHash });
+    if (new Date(user.updateEmailTokenExpires).getTime() < Date.now()) {
+      throw new AppError(
+        400,
+        "Token has been expired. It was only valid for 10 mins!"
+      );
+    }
+    if (OTP != user.emailChangingOTP) {
+      throw new AppError(400, "Wrong OTP");
+    }
+    const changeTo = user.emailToChange;
+    user.email = changeTo;
+    user.emailToChange = undefined;
+    user.upateEmailToken = undefined;
+    user.emailChangingOTP = undefined;
+    user.updateEmailTokenExpires = undefined;
+    user.emailUpdatedAt = Date.now();
+    await user.save({ validateBeforeSave: false });
+    res.status(201).json({
+      status: "success",
+      message: "Email changed successfully!",
+    });
+  } catch (err) {
+    next(err);
+  }
 };
