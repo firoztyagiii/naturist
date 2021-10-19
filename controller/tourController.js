@@ -1,9 +1,8 @@
 const Model = require("../model/allModels");
 const AppError = require("../utils/error");
-const fs = require("fs");
 const filterQuery = require("../utils/filterQuery");
-const path = require("path");
 const writeFile = require("../utils/writeFile");
+const slugify = require("slugify");
 
 exports.isNameExisted = async (req, res, next) => {
   try {
@@ -38,9 +37,15 @@ exports.postTour = async (req, res, next) => {
       req.file.originalname.split(".")[0]
     }-${Date.now().toString()}.${req.file.originalname.split(".")[1]}`;
 
-    writeFile(req.file.buffer, filename);
+    const finalName = slugify(filename, {
+      replacement: "-",
+      lower: false,
+      trim: true,
+    });
 
-    const headImg = `uploads/${filename}`;
+    writeFile(req.file.buffer, finalName);
+
+    const headImg = `uploads/${finalName}`;
 
     const tour = await Model.Tour.create({
       name,

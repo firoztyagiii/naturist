@@ -22,8 +22,12 @@ exports.checkBody = () => {
         min: 0,
         max: 10,
       }),
-    check("info").notEmpty().isLength({ max: 70 }),
-    check("description").notEmpty().isLength({ min: 100, max: 400 }),
+    check("info", "Info can't be longer than 70 characters")
+      .notEmpty()
+      .isLength({ max: 70 }),
+    check("description", "Minimum description is 100 and max 400")
+      .notEmpty()
+      .isLength({ min: 100, max: 400 }),
     check("location", "Location must not be empty").notEmpty(),
     check("tourLength", "Tour can't be longer more than 7 days and minimum 3")
       .notEmpty()

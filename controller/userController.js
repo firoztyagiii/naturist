@@ -41,8 +41,7 @@ exports.postSignup = async (req, res, next) => {
       data: {
         _id: user._id,
         name: user.name,
-        message:
-          "An OTP is sent to your email address, Please activate your account",
+        message: "Verify your email address!",
       },
     });
   } catch (err) {
