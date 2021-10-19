@@ -14,17 +14,12 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 app.set("views", "views");
-
-const whiteListDomain = [
-  "https://naturist-front.herokuapp.com",
-  "http://127.0.0.1:5500",
-  "http://localhost:5500",
-  "http://localhost:9090",
-];
 
 app.use(helmet());
 app.use(mongoSanitize());

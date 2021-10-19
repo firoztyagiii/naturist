@@ -1,9 +1,27 @@
 const Model = require("../model/allModels");
 const AppError = require("../utils/error");
+const fs = require("fs");
 const filterQuery = require("../utils/filterQuery");
+const path = require("path");
+const writeFile = require("../utils/writeFile");
+
+exports.isNameExisted = async (req, res, next) => {
+  try {
+    const existedTour = await Model.Tour.findOne({ name: req.body.name });
+    if (existedTour) {
+      throw new AppError(400, "Tour already exists with this name");
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.postTour = async (req, res, next) => {
   try {
+    if (!req.file) {
+      throw new AppError(400, "Head Img is required");
+    }
     const {
       name,
       location,
@@ -16,6 +34,14 @@ exports.postTour = async (req, res, next) => {
       dates,
     } = req.body;
 
+    const filename = `${
+      req.file.originalname.split(".")[0]
+    }-${Date.now().toString()}.${req.file.originalname.split(".")[1]}`;
+
+    writeFile(req.file.buffer, filename);
+
+    const headImg = `uploads/${filename}`;
+
     const tour = await Model.Tour.create({
       name,
       location,
@@ -26,7 +52,9 @@ exports.postTour = async (req, res, next) => {
       description,
       tourLength,
       dates,
+      headImg,
     });
+
     res.status(201).json({
       status: "success",
       data: {
@@ -34,6 +62,7 @@ exports.postTour = async (req, res, next) => {
       },
     });
   } catch (err) {
+    // console.log(err);
     next(err);
   }
 };

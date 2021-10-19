@@ -8,6 +8,8 @@ module.exports = (err, req, res, next) => {
     }
   } else if (err.name === "CastError") {
     message.push(`Invalid ID ${err.value}`);
+  } else if (err.name === "MulterError") {
+    message.push(`${err.message}, Image field name must be "headImg" `);
   }
 
   const errorCode = err.errorCode ? err.errorCode : 404;
@@ -17,5 +19,4 @@ module.exports = (err, req, res, next) => {
     status: err.status ? err.status : "Fail",
     message: errorMessage ? errorMessage : "Something went wrong!",
   });
-  // res.send(err);
 };
