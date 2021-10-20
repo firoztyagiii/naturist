@@ -3,18 +3,22 @@ const AppError = require("../utils/error");
 const sendMail = require("../utils/sendMail");
 const crypto = require("crypto");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
 
 exports.postSignup = async (req, res, next) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
 
     if (!name || !email || !password || !confirmPassword)
-      throw new AppError(400, "Invalid Input");
+      throw new AppError(
+        400,
+        "Name, email, password and confirm password fields are required!"
+      );
 
     const isAlreadyExisted = await Model.User.findOne({ email: email });
 
     if (isAlreadyExisted) {
-      throw new AppError("403", "Email already exists");
+      throw new AppError("400", "Email already exists");
     }
 
     const user = await Model.User.create({
@@ -24,16 +28,15 @@ exports.postSignup = async (req, res, next) => {
       confirmPassword,
     });
 
-    const hash = crypto.randomBytes(32).toString("hex");
-    const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+    const token = jwt.sign({ _id: user._id }, process.env.JWTKEY);
 
-    user.activationToken = encryptedHash;
+    user.activationToken = token;
     user.save({ validateBeforeSave: false });
 
     sendMail(
       user.email,
       "Activate your account!",
-      `<a href="${process.env.DOMAIN}/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
+      `<a href="${process.env.DOMAIN}/activate-account.html?verify=${token}" target="_blank" >Verify Account</a>`
     );
 
     res.status(201).json({
@@ -68,32 +71,35 @@ exports.postLogin = async (req, res, next) => {
         "Account is not active, Please activate your account first."
       );
 
-    if (user.is2FAEnabled) {
-      const hash = crypto.randomBytes(32).toString("hex");
-      const encryptedHash = crypto.createHash("sha256").update(hash).digest();
-      const OTP = Math.floor(1000 + Math.random() * 9000);
-      user.OTP = OTP;
-      user.twoFAToken = encryptedHash;
-      user.save({ validateBeforeSave: false });
-      sendMail(
-        user.email,
-        "Reset your Password!",
-        `
-       <p> ${process.env.DOMAIN}/user/2fa/${hash} </p> 
-      <p>${OTP}</p>`
-      );
-      return res.status(200).json({
-        message: "OTP sent to your email address",
-      });
-    }
+    // if (user.is2FAEnabled) {
+    //   const hash = crypto.randomBytes(32).toString("hex");
+    //   const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+    //   const OTP = Math.floor(1000 + Math.random() * 9000);
+    //   user.OTP = OTP;
+    //   user.twoFAToken = encryptedHash;
+    //   user.save({ validateBeforeSave: false });
+    //   sendMail(
+    //     user.email,
+    //     "Reset your Password!",
+    //     `
+    //    <p> ${process.env.DOMAIN}/user/2fa/${hash} </p>
+    //   <p>${OTP}</p>`
+    //   );
+    //   return res.status(200).json({
+    //     message: "OTP sent to your email address",
+    //   });
+    // }
 
-    const token = user.generateJWTToken({ _id: user._id });
+    const token = jwt.sign({ _id: user._id }, process.env.JWTKEY, {
+      expiresIn: "1h",
+    });
+
     res.cookie("jwt", token, {
       httpOnly: true,
       secure: false,
-      // sameSite: "none",
       maxAge: 3600 * 1000,
     });
+
     res.status(200).json({
       status: "success",
       token: token,
@@ -148,62 +154,85 @@ exports.activateAccount = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
   try {
     const email = req.body.email;
+
     if (!email)
       throw new AppError(
         400,
         "Email is required in order to reset the password"
       );
+
     const user = await Model.User.findOne({ email });
+
     if (!user)
       throw new AppError(400, "No user is found with this email address");
-    const hash = crypto.randomBytes(64).toString("hex");
-    const encryptedHash = crypto.createHash("sha256").update(hash).digest();
-    user.passwordResetToken = encryptedHash;
-    user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
-    user.save({ validateBeforeSave: false });
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWTKEY, {
+      expiresIn: "10m",
+    });
+
+    // user.passwordResetToken = tok;
+    // user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+    // user.save({ validateBeforeSave: false });
+
     sendMail(
       user.email,
       "Reset your Password!",
-      `<p> ${process.env.DOMAIN}/reset-password.html?token=${hash} </p>`
+      `<p>${process.env.DOMAIN}/reset-password.html?token=${token}</p>`
     );
+
     res.status(200).json({
       status: "success",
       message: "Email for resetting the password has been sent",
     });
   } catch (err) {
-    // console.log(err);
     next(err);
   }
 };
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const resetToken = req.query.token;
-    const encryptedHash = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest();
+    const token = req.query.token;
+
+    if (!token) {
+      throw new AppError(401, "Invalid token or expired");
+    }
+
+    // const encryptedHash = crypto
+    //   .createHash("sha256")
+    //   .update(resetToken)
+    //   .digest();
 
     if (!req.body.password || !req.body.confirmPassword)
-      throw new AppError(400, "Password and confirm password are required");
-    const user = await Model.User.findOne({
-      passwordResetToken: encryptedHash,
-    });
-    if (!user) throw new AppError(400, "Invalid link or expired");
-    if (Date.parse(user.passwordResetTokenExpires) < Date.now()) {
-      user.save({ validateBeforeSave: false });
-      throw new AppError(400, "Link expired or invalid");
+      throw new AppError(
+        400,
+        "Password and confirmation passwords are required"
+      );
+
+    const payload = jwt.verify(token, process.env.JWTKEY);
+
+    if (Date.now() / 1000 > payload.exp) {
+      throw new AppError(400, "Link expired, Please try again!");
     }
-    user.passwordResetToken = undefined;
-    user.passwordResetTokenExpires = undefined;
-    user.password = req.body.password;
-    user.confirmPassword = req.body.confirmPassword;
-    user.passwordChangedAt = Date.now();
-    user.save();
-    res.status(200).json({
-      status: "success",
-      message: "Password changed",
-    });
+
+    const user = await Model.User.findOne({ _id: payload._id });
+
+    console.log(user);
+
+    // if (!user) throw new AppError(400, "Invalid link or expired");
+    // if (Date.parse(user.passwordResetTokenExpires) < Date.now()) {
+    //   user.save({ validateBeforeSave: false });
+    //   throw new AppError(400, "Link expired or invalid");
+    // }
+    // user.passwordResetToken = undefined;
+    // user.passwordResetTokenExpires = undefined;
+    // user.password = req.body.password;
+    // user.confirmPassword = req.body.confirmPassword;
+    // user.passwordChangedAt = Date.now();
+    // user.save();
+    // res.status(200).json({
+    //   status: "success",
+    //   message: "Password changed",
+    // });
   } catch (err) {
     next(err);
   }
@@ -239,10 +268,10 @@ exports.twoFA = async (req, res, next) => {
 exports.logout = (req, res, next) => {
   res.cookie("jwt", "", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: false,
+    // sameSite: "none",
   });
-  //add
+
   res.status(200).json({ status: "successs" });
 };
 

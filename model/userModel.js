@@ -89,11 +89,13 @@ userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
 //   const encryptedHash = crypto.createHash("sha256").update(hash).digest();
 // };
 
-userSchema.methods.generateJWTToken = function (payload) {
-  return jwt.sign(payload, process.env.JWTKEY, {
-    expiresIn: "1h",
-  });
-};
+// userSchema.methods.generateJWTToken = function (payload) {
+//   return jwt.sign(payload, process.env.JWTKEY, {
+//     expiresIn: "1h",
+//   });
+// };
+
+// userSchema.methods.isJWTTokenExpired = function () {};
 
 userSchema.methods.isCookieExpired = function (expireTime) {
   return Date.now() / 1000 > expireTime;

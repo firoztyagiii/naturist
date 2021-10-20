@@ -1,4 +1,5 @@
 module.exports = (err, req, res, next) => {
+  // console.log(err);
   err.msg = err.message;
 
   let message = [];
@@ -10,9 +11,11 @@ module.exports = (err, req, res, next) => {
     message.push(`Invalid ID ${err.value}`);
   } else if (err.name === "MulterError") {
     message.push(`${err.message}, Image field name must be "headImg" `);
+  } else if (err.name === "JsonWebTokenError") {
+    message.push("Invalid token!");
   }
 
-  const errorCode = err.errorCode ? err.errorCode : 404;
+  const errorCode = err.errorCode ? err.errorCode : 400;
   const errorMessage = err.isOperational ? err.msg : message.join(", ");
 
   res.status(errorCode).json({

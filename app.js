@@ -1,21 +1,28 @@
-const express = require("express");
 const dotenv = require("dotenv");
+
+dotenv.config({
+  path: "./config.env",
+});
+
+const express = require("express");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
 
-dotenv.config({
-  path: "./config.env",
-});
+const globalError = require("./controller/globalErrorController");
+const AppError = require("./utils/error");
+
+const userRoute = require("./routes/userRoutes");
+const tourRoute = require("./routes/tourRoutes");
+const reviewRoute = require("./routes/reviewRoutes");
 
 const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
@@ -26,14 +33,7 @@ app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cors({ credentials: true, origin: "http://localhost:5500" }));
 
-const userRoute = require("./routes/userRoutes");
-const tourRoute = require("./routes/tourRoutes");
-const reviewRoute = require("./routes/reviewRoutes");
-const globalError = require("./controller/globalErrorController");
-const AppError = require("./utils/error");
-
 //API Endpoints
-
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);

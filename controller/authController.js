@@ -21,16 +21,19 @@ exports.isLoggedIn = async (req, res, next) => {
     const payload = jwt.verify(token, process.env.JWTKEY);
 
     const user = await User.findOne({ _id: payload._id });
+
     if (!user)
       throw new AppError(
         400,
         "Invalid or cookie has been expired, Please login again!"
       );
+
     const isExpired = user.isCookieExpired(payload.exp);
 
     if (isExpired) {
       throw new AppError(400, "Cookie has been expired");
     }
+
     if (user.passwordChangedAt) {
       if (
         new Date(user.passwordChangedAt).toString() >
@@ -39,6 +42,7 @@ exports.isLoggedIn = async (req, res, next) => {
         throw new AppError(400, "Token has been expired, Please log in again");
       }
     }
+
     if (user.emailUpdatedAt) {
       if (
         new Date(user.emailUpdatedAt).toString() >
