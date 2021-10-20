@@ -1,5 +1,5 @@
 const filterAPI = async (queryObject, model) => {
-  const defaultLimit = 3;
+  const defaultLimit = 50;
   const newQueryObject = { ...queryObject };
   [
     "sort",
@@ -53,10 +53,9 @@ const filterAPI = async (queryObject, model) => {
     query = query.select(selectData);
   }
   if (queryObject.page) {
-    const totalDoc = await query.model.countDocuments(query);
+    // const totalDoc = await query.model.countDocuments(query);
     const pageNumber = queryObject.page * 1;
     const limit = queryObject.limit ? queryObject.limit * 1 : defaultLimit;
-    const totalPage = totalDoc / limit;
     query = query.skip((pageNumber - 1) * limit);
   }
   if (queryObject.limit) {
@@ -65,7 +64,8 @@ const filterAPI = async (queryObject, model) => {
   } else {
     query = query.limit(defaultLimit);
   }
-  return query;
+  const totalDoc = await query.model.countDocuments();
+  return { toursQuery: query, totalDoc: totalDoc };
 };
 
 module.exports = filterAPI;

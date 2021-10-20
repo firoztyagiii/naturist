@@ -74,11 +74,12 @@ exports.postTour = async (req, res, next) => {
 
 exports.getTours = async (req, res, next) => {
   try {
-    const query = filterQuery(req.query, Model.Tour);
-    const data = await query;
+    const queryData = await filterQuery(req.query, Model.Tour);
+    const data = await queryData.toursQuery;
     res.status(200).json({
       status: "success",
       result: data.length,
+      totalDocs: queryData.totalDoc,
       data: {
         tours: data,
       },
@@ -146,6 +147,7 @@ exports.getTour = async (req, res, next) => {
       path: "reviews",
       populate: {
         path: "user",
+        select: "name createdAt",
       },
     });
 
