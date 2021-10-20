@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
       },
       message: "Invalid email address",
     },
-    unique: true,
+    unique: [true],
   },
   password: {
     type: String,
@@ -88,14 +88,6 @@ userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
 //   const hash = crypto.randomBytes(32).toString("hex");
 //   const encryptedHash = crypto.createHash("sha256").update(hash).digest();
 // };
-
-// userSchema.methods.generateJWTToken = function (payload) {
-//   return jwt.sign(payload, process.env.JWTKEY, {
-//     expiresIn: "1h",
-//   });
-// };
-
-// userSchema.methods.isJWTTokenExpired = function () {};
 
 userSchema.methods.isCookieExpired = function (expireTime) {
   return Date.now() / 1000 > expireTime;

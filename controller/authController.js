@@ -4,8 +4,7 @@ const AppError = require("../utils/error");
 
 exports.isLoggedIn = async (req, res, next) => {
   try {
-    if (!req.cookies.jwt && !req.headers.authorization)
-      throw new AppError(400, "You are not logged in!");
+    if (!req.cookies.jwt && !req.headers.authorization) throw new AppError(400, "You are not logged in!");
 
     let token;
 
@@ -22,32 +21,22 @@ exports.isLoggedIn = async (req, res, next) => {
 
     const user = await User.findOne({ _id: payload._id });
 
-    if (!user)
-      throw new AppError(
-        400,
-        "Invalid or cookie has been expired, Please login again!"
-      );
+    if (!user) throw new AppError(400, "Invalid or cookie has been expired, Please login again!");
 
     const isExpired = user.isCookieExpired(payload.exp);
 
     if (isExpired) {
-      throw new AppError(400, "Cookie has been expired");
+      throw new AppError(400, "Cookie expired");
     }
 
     if (user.passwordChangedAt) {
-      if (
-        new Date(user.passwordChangedAt).toString() >
-        new Date(payload.iat * 1000).toString()
-      ) {
+      if (new Date(user.passwordChangedAt).toString() > new Date(payload.iat * 1000).toString()) {
         throw new AppError(400, "Token has been expired, Please log in again");
       }
     }
 
     if (user.emailUpdatedAt) {
-      if (
-        new Date(user.emailUpdatedAt).toString() >
-        new Date(payload.iat * 1000).toString()
-      ) {
+      if (new Date(user.emailUpdatedAt).toString() > new Date(payload.iat * 1000).toString()) {
         throw new AppError(400, "Token has been expired, Please log in again");
       }
     }

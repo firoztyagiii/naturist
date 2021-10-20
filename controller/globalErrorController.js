@@ -1,5 +1,6 @@
 module.exports = (err, req, res, next) => {
   // console.log(err);
+  // res.send(err);
   err.msg = err.message;
 
   let message = [];
@@ -13,6 +14,8 @@ module.exports = (err, req, res, next) => {
     message.push(`${err.message}, Image field name must be "headImg" `);
   } else if (err.name === "JsonWebTokenError") {
     message.push("Invalid token!");
+  } else if (err.name === "TokenExpiredError") {
+    messsage.push("Token expired, Please try again");
   }
 
   const errorCode = err.errorCode ? err.errorCode : 400;
