@@ -41,9 +41,6 @@ reviewSchema.statics.updateToursReview = async function (review) {
       {
         totalRatings: data[0].totalRatings,
         averageRatings: data[0].averageRatings,
-      },
-      {
-        new: true,
       }
     );
   } catch (err) {

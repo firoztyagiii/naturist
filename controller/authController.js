@@ -30,13 +30,13 @@ exports.isLoggedIn = async (req, res, next) => {
     }
 
     if (user.passwordChangedAt) {
-      if (new Date(user.passwordChangedAt).toString() > new Date(payload.iat * 1000).toString()) {
+      if (new Date(user.passwordChangedAt) > new Date(payload.iat * 1000)) {
         throw new AppError(400, "Token has been expired, Please log in again");
       }
     }
 
     if (user.emailUpdatedAt) {
-      if (new Date(user.emailUpdatedAt).toString() > new Date(payload.iat * 1000).toString()) {
+      if (new Date(user.emailUpdatedAt) > new Date(payload.iat * 1000)) {
         throw new AppError(400, "Token has been expired, Please log in again");
       }
     }
