@@ -17,6 +17,7 @@ const AppError = require("./utils/error");
 const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
+const bookmarkRoute = require("./routes/bookmarkRoutes");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(xssClean());
 app.use(cors({ credentials: true, origin: "http://localhost:5500" }));
 
 //API Endpoints
+app.use("/api/bookmark", bookmarkRoute);
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);

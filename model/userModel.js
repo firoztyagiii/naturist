@@ -69,6 +69,13 @@ const userSchema = new mongoose.Schema({
   emailUpdatedAt: Date,
   emailChangingOTP: Number,
   emailToChange: String,
+  bookmark: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tours",
+      select: false,
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {
