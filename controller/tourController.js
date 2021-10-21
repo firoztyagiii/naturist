@@ -113,7 +113,7 @@ exports.deleteTour = async (req, res, next) => {
     await Model.Tour.findOneAndDelete({ _id: tourId });
     res.status(200).json({});
   } catch (err) {
-    // err.message = "Something went wrong";
+    err.message = "Something went wrong";
     next(err);
   }
 };
