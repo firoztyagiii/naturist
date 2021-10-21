@@ -78,7 +78,7 @@ exports.postLogin = async (req, res, next) => {
       return res.status(200).json({
         status: "success",
         message: "OTP sent to your email address",
-        data: `/user/2fa?token=${hash}`,
+        data: `${hash}`,
       });
     }
 
@@ -237,6 +237,10 @@ exports.twoFA = async (req, res, next) => {
       twoFAToken: encryptedHash,
     });
 
+    if (!user) {
+      throw new AppError(400, "Token expired!");
+    }
+
     if (Date.now(user.twoFATokenExpires) < Date.now()) {
       user.OTP = undefined;
       user.twoFAToken = undefined;
@@ -380,6 +384,24 @@ exports.updateMeEmail = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       message: "OTP sent to the new email address",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.enable2fa = async (req, res, next) => {
+  try {
+    const user = await Model.User.findOne({ _id: req.user._id });
+    if (!user) {
+      throw new AppError(400, "Invalid user");
+    }
+    user.is2FAEnabled = true;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      status: "success",
+      message: "2FA is enabled now",
     });
   } catch (err) {
     next(err);
