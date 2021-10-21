@@ -23,4 +23,6 @@ router.route("/2fa").post(userController.twoFA);
 router.route("/update-me/password").post(authController.isLoggedIn, userController.updateMePassword);
 router.route("/update-me/info").post(authController.isLoggedIn, userController.updateMeInfo);
 
+// router.route("/top").get(userController.topFive);
+
 module.exports = router;

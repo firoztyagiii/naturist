@@ -21,21 +21,9 @@ exports.postTour = async (req, res, next) => {
     if (!req.file) {
       throw new AppError(400, "Head Img is required");
     }
-    const {
-      name,
-      location,
-      difficulty,
-      price,
-      groupSize,
-      info,
-      description,
-      tourLength,
-      dates,
-    } = req.body;
+    const { name, location, difficulty, price, groupSize, info, description, tourLength, dates } = req.body;
 
-    const filename = `${
-      req.file.originalname.split(".")[0]
-    }-${Date.now().toString()}.${req.file.originalname.split(".")[1]}`;
+    const filename = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${req.file.originalname.split(".")[1]}`;
 
     const finalName = slugify(filename, {
       replacement: "-",
@@ -91,17 +79,7 @@ exports.getTours = async (req, res, next) => {
 
 exports.patchTour = async (req, res, next) => {
   try {
-    const {
-      name,
-      location,
-      difficulty,
-      price,
-      groupSize,
-      info,
-      description,
-      tourLength,
-      dates,
-    } = req.body;
+    const { name, location, difficulty, price, groupSize, info, description, tourLength, dates } = req.body;
     const tourId = req.params.id;
     const tour = await Model.Tour.findOneAndUpdate(
       { _id: tourId },
@@ -135,7 +113,7 @@ exports.deleteTour = async (req, res, next) => {
     await Model.Tour.findOneAndDelete({ _id: tourId });
     res.status(200).json({});
   } catch (err) {
-    err.message = "Something went wrong";
+    // err.message = "Something went wrong";
     next(err);
   }
 };

@@ -428,3 +428,22 @@ exports.verifyEmail = async (req, res, next) => {
     next(err);
   }
 };
+
+// exports.topFive = async (req, res, next) => {
+//   const data = await Model.Tour.aggregate([
+//     {
+//       $match: { price: { $gt: 1200 } },
+//     },
+//     { $project: { name: 1, price: 1, difficulty: 1 } },
+//     {
+//       $group: {
+//         _id: "$difficulty",
+//         totalItems: { $sum: 1 },
+//         averagePrice: { $avg: "$price" },
+//         averageGroupSize: { $avg: "$groupSize" },
+//       },
+//     },
+//     { $sort: { totalItems: -1 } },
+//   ]);
+//   res.json({ data });
+// };
