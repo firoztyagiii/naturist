@@ -379,11 +379,11 @@ exports.updateMeEmail = async (req, res, next) => {
     user.emailToChange = email.trim().toLowerCase();
     await user.save({ validateBeforeSave: false });
 
-    sendMail(email, "Update Email Address OTP", `${process.env.DOMAIN}/update-email?token=${hash}`);
+    sendMail(email, "Update Email Address OTP", `${process.env.DOMAIN}/update-email.html?token=${hash}`);
 
     res.status(200).json({
       status: "success",
-      message: "OTP sent to the new email address",
+      message: "Confirmation email is sent to your new email address",
     });
   } catch (err) {
     next(err);
