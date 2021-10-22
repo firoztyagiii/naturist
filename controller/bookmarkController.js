@@ -41,10 +41,14 @@ exports.addToBookmark = async (req, res, next) => {
 };
 
 exports.getBookmarks = async (req, res, next) => {
-  const user = await Model.User.findById(req.user._id).select("bookmark").populate({
-    path: "bookmark",
-  });
-  res.status(200).json({
-    bookmarks: user.bookmark,
-  });
+  try {
+    const user = await Model.User.findById(req.user._id).select("bookmark").populate({
+      path: "bookmark",
+    });
+    res.status(200).json({
+      bookmarks: user.bookmark,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
