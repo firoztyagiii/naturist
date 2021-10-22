@@ -344,6 +344,10 @@ exports.updateMeEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    if (!email) {
+      throw new AppError(400, "No email is found to be changed");
+    }
+
     if (!validator.isEmail(email)) {
       throw new AppError(400, "Invalid email address");
     }
