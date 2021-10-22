@@ -88,8 +88,8 @@ exports.postLogin = async (req, res, next) => {
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: false,
-      // sameSite: "none",
+      secure: true,
+      sameSite: "none",
       maxAge: 3600 * 1000,
     });
 
@@ -264,8 +264,8 @@ exports.twoFA = async (req, res, next) => {
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: false,
-      // sameSite: "none",
+      secure: true,
+      sameSite: "none",
       maxAge: 3600 * 1000,
     });
 
