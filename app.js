@@ -32,7 +32,7 @@ app.set("views", "views");
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
-app.use(cors({ credentials: true, origin: "http://localhost:5500" }));
+app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 
 //API Endpoints
 app.use("/api/bookmark", bookmarkRoute);
