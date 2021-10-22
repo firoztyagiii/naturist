@@ -77,7 +77,6 @@ reviewSchema.post("findOneAndUpdate", async function (doc, next) {
 
 reviewSchema.post("findOneAndDelete", async function (doc, next) {
   try {
-    console.log(doc);
     this.model.updateToursReview(doc);
   } catch (err) {
     next(err);

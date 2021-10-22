@@ -9,13 +9,13 @@ const tourSchema = new mongoose.Schema({
     lowercase: true,
     required: [true, "Tour name is required"],
     unique: true,
-    maxlength: [20, "Title cannnot be exceeded more than 20 characters"],
-    minlength: [10, "Title must have atleast 10 characters"],
+    maxlength: [20, "Name cannnot be exceeded more than 20 characters"],
+    minlength: [10, "Name must have atleast 10 characters"],
   },
   location: {
     type: String,
     trim: true,
-    required: [true, "Location is required"],
+    required: [true, "Location must not be empty"],
   },
   difficulty: {
     type: String,
@@ -53,20 +53,20 @@ const tourSchema = new mongoose.Schema({
   info: {
     type: String,
     required: [true, "Info is required"],
-    maxlength: [70, "Info can only be 70 characters long"],
+    maxlength: [70, "Max 80 characters are allowed for info"],
   },
   description: {
     type: String,
     required: [true, "Description is required"],
     trim: true,
-    minlength: [100, "Description should be atleast 100 characters long"],
-    maxlength: [400, "Description can't be more than 400 characters"],
+    minlength: [100, "Minimum description is 100 and max 400 characters"],
+    maxlength: [400, "Minimum description is 100 and max 400 characters"],
   },
   tourLength: {
     type: Number,
     required: [true, "Tour length is required"],
-    min: [3, "Tour should be atleast 3 days"],
-    max: [7, "Tour can't be longer more than 7 days"],
+    min: [3, "Tour can't be longer more than 7 days and minimum 3"],
+    max: [7, "Tour can't be longer more than 7 days and minimum 3"],
   },
   slug: {
     type: String,
@@ -97,6 +97,14 @@ tourSchema.pre("save", function (next) {
     lower: true,
   });
   next();
+});
+
+tourSchema.post("findOneAndUpdate", async function (doc) {
+  doc.slug = slugify(doc.name, {
+    replacement: "-",
+    lower: true,
+  });
+  doc.save({ validateBeforeSave: false });
 });
 
 tourSchema.post("findOneAndDelete", function (doc) {

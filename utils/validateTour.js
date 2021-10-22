@@ -2,7 +2,7 @@ const { check, validationResult } = require("express-validator");
 const AppError = require("../utils/error");
 
 exports.checkBody = [
-  check("name", "Name must have min 10 and max 20 characters").notEmpty().isLength({
+  check("name", "Title cannnot be exceeded more than 20 characters").notEmpty().isLength({
     min: 10,
     max: 20,
   }),
@@ -12,8 +12,8 @@ exports.checkBody = [
     min: 0,
     max: 10,
   }),
-  check("info", "Info can't be longer than 70 characters").notEmpty().isLength({ max: 70 }),
-  check("description", "Minimum description is 100 and max 400").notEmpty().isLength({ min: 100, max: 400 }),
+  check("info", "Max 80 characters are allowed for info").notEmpty().isLength({ max: 80 }),
+  check("description", "Minimum description is 100 and max 400 characters").notEmpty().isLength({ min: 100, max: 400 }),
   check("location", "Location must not be empty").notEmpty(),
   check("tourLength", "Tour can't be longer more than 7 days and minimum 3").notEmpty().isFloat({ min: 3, max: 7 }),
   // check("dates", "Dates cannot be empty").isEmpty(),

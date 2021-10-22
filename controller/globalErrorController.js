@@ -1,5 +1,4 @@
 module.exports = (err, req, res, next) => {
-  // console.log(err);
   // res.send(err);
   err.msg = err.message;
 
@@ -16,6 +15,12 @@ module.exports = (err, req, res, next) => {
     message.push("Invalid token!");
   } else if (err.name === "TokenExpiredError") {
     messsage.push("Token expired, Please try again");
+  } else if (err.codeName === "DuplicateKey") {
+    const msg = [];
+    for (key in err.keyValue) {
+      msg.push(`${key}: ${err.keyValue[key]} already exists!`);
+    }
+    message.push(msg);
   }
 
   const errorCode = err.errorCode ? err.errorCode : 400;

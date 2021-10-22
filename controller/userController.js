@@ -241,15 +241,15 @@ exports.twoFA = async (req, res, next) => {
       throw new AppError(400, "Token expired!");
     }
 
-    if (Date.now(user.twoFATokenExpires) < Date.now()) {
+    if (new Date(user.twoFATokenExpires).getTime() < Date.now()) {
       user.OTP = undefined;
       user.twoFAToken = undefined;
       user.twoFATokenExpires = undefined;
-      await user.save();
+      await user.save({ validateBeforeSave: false });
       throw new AppError(400, "Link expired! Try again");
     }
 
-    if (!user) throw new AppError(400, "Invalid 2FA token or expired!");
+    if (!user) throw new AppError(400, "Token does not belong to the user");
 
     if (user.OTP != OTP) throw new AppError(400, "Incorrect OTP");
 
@@ -360,7 +360,6 @@ exports.updateMeEmail = async (req, res, next) => {
 
     const user = await Model.User.findOne({ _id: req.user._id });
     const emailUpdatedAt = user.emailUpdatedAt;
-
     const day = 60 * 60 * 24;
 
     if (emailUpdatedAt) {
@@ -412,12 +411,31 @@ exports.enable2fa = async (req, res, next) => {
   }
 };
 
+exports.turnOff2Fa = async (req, res, next) => {
+  try {
+    const user = await Model.User.findOne({ _id: req.user._id });
+
+    if (!user) {
+      throw new AppError(400, "Invalid user");
+    }
+    user.is2FAEnabled = false;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      status: "success",
+      message: "2FA has been turned off now",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.verifyEmail = async (req, res, next) => {
   try {
     const token = req.query.token;
 
     if (!token) {
-      throw new AppError(400, "Invalid token or expired!");
+      throw new AppError(400, "Could not find any valid token");
     }
 
     const { OTP } = req.body;
@@ -429,7 +447,16 @@ exports.verifyEmail = async (req, res, next) => {
 
     const user = await Model.User.findOne({ upateEmailToken: encryptedHash });
 
+    if (!user) {
+      throw new AppError(400, "This token does not belong to the user!");
+    }
+
     if (new Date(user.updateEmailTokenExpires).getTime() < Date.now()) {
+      user.emailToChange = undefined;
+      user.upateEmailToken = undefined;
+      user.emailChangingOTP = undefined;
+      user.updateEmailTokenExpires = undefined;
+      await user.save({ validateBeforeSave: false });
       throw new AppError(400, "Token has been expired. It was only valid for 10 mins!");
     }
 
