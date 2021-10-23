@@ -24,14 +24,13 @@ const bookingRoute = require("./routes/bookingRoutes");
 const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 app.use(cookieParser());
-
-app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
