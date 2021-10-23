@@ -19,11 +19,12 @@ const tourRoute = require("./routes/tourRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
 const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
+const bookingRoute = require("./routes/bookingRoutes");
 const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
 
-app.post("/confirmCheckout", checkoutController.confirmCheckout);
+app.post("/confirm-checkout", express.raw(), checkoutController.confirmCheckout);
 
 app.use(cookieParser());
 app.use(express.json());
@@ -44,6 +45,7 @@ app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/bookmark", bookmarkRoute);
 app.use("/api/checkout", checkoutRoute);
+app.use("/api/booking", bookingRoute);
 
 app.use("*", (req, res, next) => {
   next(new AppError(404, "Use /api/ endpoints"));
