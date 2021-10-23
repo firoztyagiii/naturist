@@ -35,6 +35,8 @@ exports.confirmCheckout = async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
   console.log("SIGNATURE ===>", sig);
   console.log("RAW BODY ===>", req.rawBody);
+  console.log("JSON BODY ===>", req.body);
+
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.WEBHOOK_SECRET);
