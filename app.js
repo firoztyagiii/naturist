@@ -24,13 +24,28 @@ const bookingRoute = require("./routes/bookingRoutes");
 const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
-app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
-app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 app.use(cookieParser());
+
+var whitelist = ["https://naturist-front.herokuapp.com", "https://stripe.com", "https://checkout.stripe.com"];
+var corsOptions = {};
+
+app.use(
+  cors({
+    credentials: true,
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
