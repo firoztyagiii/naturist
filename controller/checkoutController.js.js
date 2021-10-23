@@ -38,8 +38,9 @@ exports.confirmCheckout = async (req, res, next) => {
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(req.body, sig.toString(), process.env.WEBHOOK_SECRET);
   } catch (err) {
+    console.log(event);
     return res.status(400).send(`Webhook error, ${err.message}`);
   }
 
