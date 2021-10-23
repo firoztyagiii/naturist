@@ -32,7 +32,6 @@ app.use(xssClean());
 app.use(cookieParser());
 
 var whitelist = ["https://naturist-front.herokuapp.com", "https://stripe.com", "https://checkout.stripe.com"];
-var corsOptions = {};
 
 app.use(
   cors({
