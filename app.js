@@ -18,8 +18,12 @@ const userRoute = require("./routes/userRoutes");
 const tourRoute = require("./routes/tourRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
 const bookmarkRoute = require("./routes/bookmarkRoutes");
+const checkoutRoute = require("./routes/checkoutRoute");
+const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
+
+app.post("/confirmCheckout", checkoutController.confirmCheckout);
 
 app.use(cookieParser());
 app.use(express.json());
@@ -32,13 +36,14 @@ app.set("views", "views");
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
-app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
+app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
 
 //API Endpoints
-app.use("/api/bookmark", bookmarkRoute);
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
+app.use("/api/bookmark", bookmarkRoute);
+app.use("/api/checkout", checkoutRoute);
 
 app.use("*", (req, res, next) => {
   next(new AppError(404, "Use /api/ endpoints"));
