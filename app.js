@@ -25,20 +25,20 @@ const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
 
-// app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
-
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 app.use(cookieParser());
+
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 app.set("views", "views");
-
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(xssClean());
-app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 
 //API Endpoints
 app.use("/api/user", userRoute);
