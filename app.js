@@ -10,6 +10,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
+const bodyParser = require("body-parser");
 
 const globalError = require("./controller/globalErrorController");
 const AppError = require("./utils/error");
@@ -24,7 +25,7 @@ const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
 
-app.post("/confirm-checkout", express.raw(), checkoutController.confirmCheckout);
+app.post("/confirm-checkout", bodyParser.raw({ type: "application/json" }), checkoutController.confirmCheckout);
 
 app.use(cookieParser());
 app.use(express.json());
