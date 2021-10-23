@@ -25,7 +25,7 @@ const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
 
-app.post("/confirm-checkout", express.raw(), checkoutController.confirmCheckout);
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 
 app.use(cookieParser());
 app.use(express.json());
