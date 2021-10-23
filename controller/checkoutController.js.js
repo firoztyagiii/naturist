@@ -6,7 +6,7 @@ exports.getCheckoutSession = async (req, res, next) => {
     const tour = await Model.Tour.findOne({ _id: req.params.tourId });
 
     const session = await stripe.checkout.sessions.create({
-      success_url: "https://naturist.herokuapp.com/",
+      success_url: "https://naturist-front.herokuapp.com/",
       cancel_url: "https://naturist-front.herokuapp.com/",
       payment_method_types: ["card"],
       customer_email: req.user.email,
