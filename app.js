@@ -28,7 +28,9 @@ app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com", allowedHeaders: "*" }));
+app.use(
+  cors({ credentials: true, origin: "https://naturist-front.herokuapp.com", allowedHeaders: ["Content-Type", "Authorization"] })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
