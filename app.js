@@ -21,6 +21,7 @@ const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
 const bookingRoute = require("./routes/bookingRoutes");
 const confirmCheckout = require("./controller/checkoutController.js");
+const bodyParser = require("body-parser");
 const app = express();
 
 app.use(helmet());
@@ -31,8 +32,6 @@ app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 // app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
 
-app.post("/confirm-checkout", confirmCheckout.confirmCheckout);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
@@ -41,6 +40,8 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 //API Endpoints
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), confirmCheckout.confirmCheckout);
+
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);
 app.use("/api/review", reviewRoute);
