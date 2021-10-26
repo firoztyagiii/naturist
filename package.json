@@ -24,7 +24,6 @@
     "mongoose": "^6.0.9",
     "multer": "^1.4.3",
     "slugify": "^1.6.1",
-    "stripe": "^8.184.0",
     "validator": "^13.6.0",
     "xss-clean": "^0.1.1"
   },

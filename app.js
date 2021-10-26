@@ -10,7 +10,6 @@ const helmet = require("helmet");
 const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
-const bodyParser = require("body-parser");
 
 const globalError = require("./controller/globalErrorController");
 const AppError = require("./utils/error");
@@ -21,30 +20,15 @@ const reviewRoute = require("./routes/reviewRoutes");
 const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
 const bookingRoute = require("./routes/bookingRoutes");
-const checkoutController = require("./controller/checkoutController.js");
 
 const app = express();
 
-app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), checkoutController.confirmCheckout);
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cookieParser());
 
-var whitelist = ["https://naturist-front.herokuapp.com", "https://stripe.com", "https://checkout.stripe.com"];
-
-app.use(
-  cors({
-    credentials: true,
-    origin: function (origin, callback) {
-      if (whitelist.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-  })
-);
+app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
