@@ -28,10 +28,10 @@ app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cookieParser());
 
-app.post("/confirm-checkout", confirmCheckout.confirmCheckout);
-
 app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 // app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
+
+app.post("/confirm-checkout", confirmCheckout.confirmCheckout);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
