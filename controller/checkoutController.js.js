@@ -18,10 +18,10 @@ exports.getCheckoutSession = async (req, res, next) => {
       currency: "USD",
       payment_capture: true,
       notes: {
-        referenceId: tour._id,
+        referenceId: tour._id.toString(),
         username: req.user.name,
         email: req.user.email,
-        user: req.user._id,
+        user: req.user._id.toString(),
       },
     });
     res.status(200).json({ order: order });
