@@ -14,7 +14,7 @@ exports.getCheckoutSession = async (req, res, next) => {
       currency: "USD",
       payment_capture: true,
       notes: {
-        reference_id: tour._id,
+        referenceId: tour._id,
         username: req.user.name,
         email: req.user.email,
         user: req.user._id,
@@ -28,7 +28,8 @@ exports.getCheckoutSession = async (req, res, next) => {
 
 exports.confirmCheckout = async (req, res, next) => {
   const signature = req.headers["x-razorpay-signature"];
-  console.log(req.body.payload.payment.entity);
+  const orderId = req.body.payload.payment.entity.order_id;
+  const amount = req.body.payload.payment.entity.amount / 100;
 
   const crypto = require("crypto");
   const expectedSignature = crypto.createHmac("sha256", "kingroot").update(JSON.stringify(req.body)).digest("hex");
