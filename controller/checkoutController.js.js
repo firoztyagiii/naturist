@@ -1,5 +1,6 @@
 const Model = require("../model/allModels");
 const Razorpay = require("razorpay");
+const AppError = require("../utils/error");
 
 const rzrpy = new Razorpay({
   key_id: "rzp_test_iQXxC9LBZRPfH9",
@@ -9,6 +10,9 @@ const rzrpy = new Razorpay({
 exports.getCheckoutSession = async (req, res, next) => {
   try {
     const tour = await Model.Tour.findOne({ _id: req.params.tourId });
+    if (!tour) {
+      throw new AppError(400, "Invalid tour ID");
+    }
     const order = await rzrpy.orders.create({
       amount: tour.price * 100,
       currency: "USD",
