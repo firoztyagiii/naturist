@@ -21,13 +21,12 @@ const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
 const bookingRoute = require("./routes/bookingRoutes");
 const confirmCheckout = require("./controller/checkoutController.js");
-const bodyParser = require("body-parser");
 const app = express();
 
 app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
 // app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
 
-app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), confirmCheckout.confirmCheckout);
+app.post("/confirm-checkout", confirmCheckout.confirmCheckout);
 
 app.use(helmet());
 app.use(mongoSanitize());
