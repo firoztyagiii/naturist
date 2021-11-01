@@ -31,10 +31,7 @@ exports.confirmCheckout = async (req, res, next) => {
   const signature = req.headers["x-razorpay-signature"];
 
   const crypto = require("crypto");
-  const expectedSignature = crypto
-    .createHmac("sha256", "aEoBGobKOlheWd6RJeVzoyPW")
-    .update(JSON.stringify(req.body))
-    .digest("hex");
+  const expectedSignature = crypto.createHmac("sha256", "kingroot").update(JSON.stringify(req.body)).digest("hex");
 
   console.log("SIGNATURE--->", signature);
   console.log("EXPECTED--->", expectedSignature);
