@@ -24,6 +24,8 @@ const confirmCheckout = require("./controller/checkoutController.js");
 const bodyParser = require("body-parser");
 const app = express();
 
+app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), confirmCheckout.confirmCheckout);
+
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
@@ -40,7 +42,6 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 //API Endpoints
-app.post("/confirm-checkout", bodyParser.raw({ type: "*/*" }), confirmCheckout.confirmCheckout);
 
 app.use("/api/user", userRoute);
 app.use("/api/tour", tourRoute);

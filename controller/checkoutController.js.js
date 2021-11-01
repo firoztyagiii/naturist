@@ -27,5 +27,14 @@ exports.getCheckoutSession = async (req, res, next) => {
 };
 
 exports.confirmCheckout = async (req, res, next) => {
-  console.log(req.body);
+  const signature = req.headers["x-razorpay-signature"];
+
+  const body = req.body.payload.payment.entity.order_id + "|" + req.body.payload.payment.entity.id;
+
+  const crypto = require("crypto");
+  const expectedSignature = crypto.createHmac("sha256", "aEoBGobKOlheWd6RJeVzoyPW").update(body.toString()).digest("hex");
+
+  if (expectedSignature === signature) {
+    console.log("Payment Verified");
+  }
 };
