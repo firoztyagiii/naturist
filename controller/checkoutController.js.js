@@ -28,7 +28,6 @@ exports.getCheckoutSession = async (req, res, next) => {
 
 exports.confirmCheckout = async (req, res, next) => {
   console.log("BODY--->", req.body);
-  console.log("PAYLOAD--->", req.body.payload);
   const signature = req.headers["x-razorpay-signature"];
 
   const crypto = require("crypto");
