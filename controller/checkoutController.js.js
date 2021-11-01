@@ -28,11 +28,10 @@ exports.getCheckoutSession = async (req, res, next) => {
 
 exports.confirmCheckout = async (req, res, next) => {
   const signature = req.headers["x-razorpay-signature"];
-
-  const body = req.body.payload.payment.entity.order_id + "|" + req.body.payload.payment.entity.id;
+  console.log(req.body.payload.payment.entity);
 
   const crypto = require("crypto");
-  const expectedSignature = crypto.createHmac("sha256", "kingroot").update(body.toString()).digest("hex");
+  const expectedSignature = crypto.createHmac("sha256", "kingroot").update(JSON.stringify(req.body)).digest("hex");
 
   console.log("SIGNATURE--->", signature);
   console.log("EXPECTED--->", expectedSignature);
