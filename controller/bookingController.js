@@ -4,11 +4,11 @@ exports.getBookings = async (req, res, next) => {
   try {
     const bookings = await Model.Booking.find({ user: req.user._id });
     res.status(200).json({
-      status: "success"
+      status: "success",
       data: {
-        bookings
-      }
-    })
+        bookings,
+      },
+    });
   } catch (err) {
     next(err);
   }
