@@ -31,10 +31,11 @@ exports.confirmCheckout = async (req, res, next) => {
   console.log("PAYLOAD--->", req.body.payload);
   const signature = req.headers["x-razorpay-signature"];
 
-  const body = req.body.payload.payment.entity.order_id + "|" + req.body.payload.payment.entity.id;
-
   const crypto = require("crypto");
-  const expectedSignature = crypto.createHmac("sha256", "aEoBGobKOlheWd6RJeVzoyPW").update(body.toString()).digest("hex");
+  const expectedSignature = crypto
+    .createHmac("sha256", "aEoBGobKOlheWd6RJeVzoyPW")
+    .update(JSON.stringify(req.body))
+    .digest("hex");
 
   if (expectedSignature === signature) {
     console.log("Payment Verified");
