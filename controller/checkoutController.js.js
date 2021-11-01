@@ -36,6 +36,9 @@ exports.confirmCheckout = async (req, res, next) => {
     .update(JSON.stringify(req.body))
     .digest("hex");
 
+  console.log("SIGNATURE--->", signature);
+  console.log("EXPECTED--->", expectedSignature);
+
   if (expectedSignature === signature) {
     console.log("Payment Verified");
   }
