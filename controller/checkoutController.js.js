@@ -27,6 +27,7 @@ exports.getCheckoutSession = async (req, res, next) => {
 };
 
 exports.confirmCheckout = async (req, res, next) => {
+  console.log("PAYLOAD--->", req.body.payload);
   const signature = req.headers["x-razorpay-signature"];
 
   const body = req.body.payload.payment.entity.order_id + "|" + req.body.payload.payment.entity.id;
