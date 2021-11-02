@@ -36,9 +36,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
-app.set("view engine", "ejs");
-app.set("views", "views");
-
 //API Endpoints
 app.post("/confirm-checkout", confirmCheckout.confirmCheckout);
 
