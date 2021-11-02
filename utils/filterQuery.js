@@ -26,8 +26,8 @@ const filterAPI = async (queryObject, model) => {
     query = query.find({ price: { $lt: maxPrice } });
   }
   if (queryObject.mingroupsize) {
-    const minGroupSize = queryObject.minGroupSize * 1;
-    query = query.find({ groupSize: { $gt: minGroupSize } });
+    const mingroupsize = queryObject.mingroupsize * 1;
+    query = query.find({ groupSize: { $gt: mingroupsize } });
   }
 
   if (queryObject.maxgroupsize) {

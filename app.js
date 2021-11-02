@@ -21,7 +21,6 @@ const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
 const bookingRoute = require("./routes/bookingRoutes");
 const confirmCheckout = require("./controller/checkoutController.js");
-const bodyParser = require("body-parser");
 const app = express();
 
 app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
