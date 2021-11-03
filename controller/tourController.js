@@ -125,7 +125,7 @@ exports.getTour = async (req, res, next) => {
       path: "reviews",
       populate: {
         path: "user",
-        select: "name createdAt",
+        select: "name createdAt profilePhoto",
       },
     });
 

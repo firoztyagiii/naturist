@@ -23,8 +23,8 @@ const bookingRoute = require("./routes/bookingRoutes");
 const confirmCheckout = require("./controller/checkoutController.js");
 const app = express();
 
-app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
-// app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
+// app.use(cors({ credentials: true, origin: "https://naturist-front.herokuapp.com" }));
+app.use(cors({ credentials: true, origin: "http://127.0.0.1:5500" }));
 
 app.use(helmet());
 app.use(mongoSanitize());
