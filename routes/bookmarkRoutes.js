@@ -4,7 +4,8 @@ const authController = require("../controller/authController");
 
 router
   .route("/")
-  .post(authController.isLoggedIn, bookmarkController.addToBookmark)
-  .get(authController.isLoggedIn, bookmarkController.getBookmarks);
+  .post(authController.isLoggedIn, bookmarkController.postBookmark)
+  .get(authController.isLoggedIn, bookmarkController.getBookmarks)
+  .delete(authController.isLoggedIn, bookmarkController.deleteBookmark);
 
 module.exports = router;

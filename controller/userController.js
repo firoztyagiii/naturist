@@ -9,7 +9,8 @@ exports.postSignup = async (req, res, next) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
 
-    if (!name || !email || !password || !confirmPassword) throw new AppError(400, "Name, email and passwords are required!");
+    if (!name || !email || !password || !confirmPassword)
+      throw new AppError(400, "Name, email and passwords are required!");
 
     const isAlreadyExisted = await Model.User.findOne({ email: email });
 
@@ -87,9 +88,9 @@ exports.postLogin = async (req, res, next) => {
     });
 
     res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      // httpOnly: true,
+      // secure: true,
+      // sameSite: "none",
       maxAge: 3600 * 1000,
     });
 
@@ -184,7 +185,8 @@ exports.resetPassword = async (req, res, next) => {
 
     const encryptedHash = crypto.createHash("sha256").update(resetToken).digest();
 
-    if (!req.body.password || !req.body.confirmPassword) throw new AppError(400, "Password and confirm password are required");
+    if (!req.body.password || !req.body.confirmPassword)
+      throw new AppError(400, "Password and confirm password are required");
 
     if (req.body.password !== req.body.confirmPassword) {
       throw new AppError(400, "Passwords do not match");
