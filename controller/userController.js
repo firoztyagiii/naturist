@@ -114,6 +114,7 @@ exports.aboutMe = async (req, res, next) => {
           name: user.name,
           email: user.email,
           createdAt: user.createdAt,
+          photo: user.profilePhoto,
         },
       },
     });
