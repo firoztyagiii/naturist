@@ -380,12 +380,10 @@ exports.updateMeEmail = async (req, res, next) => {
       }
     }
 
-    const OTP = Math.floor(1000 + Math.random() * 9000);
     const hash = crypto.randomBytes(64).toString("hex");
     const encryptedHash = crypto.createHash("sha256").update(hash).digest();
 
     user.upateEmailToken = encryptedHash;
-    user.emailChangingOTP = OTP;
     user.updateEmailTokenExpires = Date.now() + 60 * 10 * 1000;
     user.emailToChange = email.trim().toLowerCase();
     await user.save({ validateBeforeSave: false });
@@ -478,11 +476,6 @@ exports.verifyEmail = async (req, res, next) => {
       throw new AppError(400, "Could not find any valid token");
     }
 
-    const { OTP } = req.body;
-
-    if (!OTP) {
-      throw new AppError(400, "No OTP found!");
-    }
     const encryptedHash = crypto.createHash("sha256").update(token).digest();
 
     const user = await Model.User.findOne({ upateEmailToken: encryptedHash });
@@ -494,21 +487,15 @@ exports.verifyEmail = async (req, res, next) => {
     if (new Date(user.updateEmailTokenExpires).getTime() < Date.now()) {
       user.emailToChange = undefined;
       user.upateEmailToken = undefined;
-      user.emailChangingOTP = undefined;
       user.updateEmailTokenExpires = undefined;
       await user.save({ validateBeforeSave: false });
       throw new AppError(400, "Token has been expired. It was only valid for 10 mins!");
-    }
-
-    if (OTP != user.emailChangingOTP) {
-      throw new AppError(400, "Wrong OTP");
     }
 
     const changeTo = user.emailToChange;
     user.email = changeTo;
     user.emailToChange = undefined;
     user.upateEmailToken = undefined;
-    user.emailChangingOTP = undefined;
     user.updateEmailTokenExpires = undefined;
     user.emailUpdatedAt = Date.now();
     await user.save({ validateBeforeSave: false });

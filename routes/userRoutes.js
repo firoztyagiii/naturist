@@ -15,7 +15,7 @@ router.route("/about-me").get(authController.isLoggedIn, userController.aboutMe)
 //Update password or EMail
 router.route("/forgot-password").post(userController.forgotPassword);
 router.route("/reset-password").post(userController.resetPassword);
-router.route("/update-email").post(userController.verifyEmail);
+router.route("/update-email").get(userController.verifyEmail);
 
 //Authentication
 router.route("/activate-account").get(userController.activateAccount);
