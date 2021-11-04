@@ -75,7 +75,9 @@ exports.postLogin = async (req, res, next) => {
       user.twoFATokenExpires = Date.now() + 60 * 10 * 1000;
       user.save({ validateBeforeSave: false });
 
-      sendMail(user.email, "2FA Login OTP!", `<p>${OTP}</p>`);
+      const markup = emailTemplates.emailOTP(OTP);
+
+      sendMail(user.email, "Login OTP!", markup);
 
       return res.status(200).json({
         status: "success",
@@ -166,7 +168,9 @@ exports.forgotPassword = async (req, res, next) => {
     user.passwordResetTokenExpires = Date.now() + 60 * 10 * 1000;
     user.save({ validateBeforeSave: false });
 
-    sendMail(user.email, "Reset your Password!", `<p> ${process.env.DOMAIN}/reset-password.html?token=${hash} </p>`);
+    const markup = emailTemplates.resetPassword(hash);
+
+    sendMail(user.email, "Reset your Password!", markup);
 
     res.status(200).json({
       status: "success",
@@ -386,7 +390,9 @@ exports.updateMeEmail = async (req, res, next) => {
     user.emailToChange = email.trim().toLowerCase();
     await user.save({ validateBeforeSave: false });
 
-    sendMail(email, "Update Email Address OTP", `${process.env.DOMAIN}/update-email.html?token=${hash}`);
+    const markup = emailTemplates.updateEmail(hash);
+
+    sendMail(email, "Update Email Address", markup);
 
     res.status(200).json({
       status: "success",
