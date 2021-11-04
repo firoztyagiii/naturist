@@ -1,3 +1,6 @@
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+
 const router = require("express").Router();
 const userController = require("../controller/userController");
 const authController = require("../controller/authController");
@@ -21,6 +24,7 @@ router.route("/2fa").post(userController.twoFA);
 //Update Me
 router.route("/update-me/email").post(authController.isLoggedIn, userController.updateMeEmail);
 router.route("/update-me/password").post(authController.isLoggedIn, userController.updateMePassword);
+router.route("/update-me/photo").post(authController.isLoggedIn, upload.single("photo"), userController.updateMePhoto);
 router.route("/update-me/info").post(authController.isLoggedIn, userController.updateMeInfo);
 router.route("/update-me/enable2fa").get(authController.isLoggedIn, userController.enable2fa);
 router.route("/update-me/turnoff2fa").get(authController.isLoggedIn, userController.turnOff2Fa);
