@@ -484,7 +484,7 @@ exports.verifyEmail = async (req, res, next) => {
       throw new AppError(400, "This token does not belong to the user!");
     }
 
-    if (new Date(user.updateEmailTokenExpires).getTime() < Date.now()) {
+    if (new Date(user.updateEmailTokenExpires).getTime() < Date.now() || user.updateEmailTokenExpires === "expired") {
       user.emailToChange = undefined;
       user.upateEmailToken = undefined;
       user.updateEmailTokenExpires = undefined;
@@ -496,11 +496,11 @@ exports.verifyEmail = async (req, res, next) => {
     user.email = changeTo;
     user.emailToChange = undefined;
     user.upateEmailToken = undefined;
-    user.updateEmailTokenExpires = undefined;
+    user.updateEmailTokenExpires = "expired";
     user.emailUpdatedAt = Date.now();
     await user.save({ validateBeforeSave: false });
 
-    res.status(201).json({
+    res.status(200).json({
       status: "success",
       message: "Email changed successfully!",
     });
