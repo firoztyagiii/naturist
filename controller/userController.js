@@ -6,6 +6,7 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const slugify = require("slugify");
 const writeFile = require("../utils/writeFile");
+const emailTemplates = require("../utils/emailTemplates");
 
 exports.postSignup = async (req, res, next) => {
   try {
@@ -33,18 +34,16 @@ exports.postSignup = async (req, res, next) => {
     user.activationToken = encryptedHash;
     user.save({ validateBeforeSave: false });
 
-    sendMail(
-      user.email,
-      "Activate your account!",
-      `<a href="${process.env.DOMAIN}/activate-account.html?verify=${hash}" target="_blank" >Verify</a>`
-    );
+    const markup = emailTemplates.verification(hash);
+
+    sendMail(user.email, "Activate your account!", markup);
 
     res.status(201).json({
       status: "success",
       data: {
         _id: user._id,
         name: user.name,
-        message: "A validation link is sent to your email address, Please verify it!",
+        message: "A verification link is sent to your email address, Please verify it!",
       },
     });
   } catch (err) {
