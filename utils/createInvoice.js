@@ -27,8 +27,10 @@ const createInvoice = function (invoice) {
 
   S3.upload(params, function (err, response) {
     if (err) {
+      console.log(err);
     } else {
-      sendMail(invoice.user.email, "Your Invoice", "", doc);
+      console.log("UPLOAD RESULT --->", response);
+      sendMail(invoice.user.email, "Your Invoice", "-", doc);
     }
   });
 };

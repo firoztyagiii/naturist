@@ -54,6 +54,7 @@ exports.confirmCheckout = async (req, res, next) => {
       .populate({
         path: "tour",
       });
+    console.log("INVOICE DATA --->", invoiceData);
     createInvoice(invoiceData);
     res.status(200).json({
       status: "success",
