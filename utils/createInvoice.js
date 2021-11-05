@@ -11,7 +11,6 @@ const S3 = new aws.S3({
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
-  console.log("INVOICE INSIDE THE PDF FUNC ===>", invoice);
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
@@ -19,7 +18,7 @@ const createInvoice = function (invoice) {
   doc.end();
 
   var params = {
-    Key: `invoice-${invoice._id}.pdf`,
+    Key: `invoice-${invoice.shipping.invoiceId}.pdf`,
     Body: doc,
     Bucket: process.env.SPACES_BUCKET_NAME,
     ContentType: "application/pdf",
@@ -29,9 +28,7 @@ const createInvoice = function (invoice) {
     if (err) {
       console.log(err);
     } else {
-      console.log("UPLOAD RESULT --->", response);
-      console.log("FROM THE ELSE ===>", invoice._id);
-      sendMail(invoice.user.email, "Your Invoice", "-", doc);
+      sendMail(invoice.shipping.email, "Your Invoice", "-", doc);
     }
   });
 };
@@ -157,6 +154,8 @@ const generateInvoiceData = (data) => {
       state: "",
       country: "",
       postal_code: "",
+      email: data.email,
+      invoiceId: data._id,
     },
     items: [
       {
