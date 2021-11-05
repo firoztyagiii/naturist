@@ -46,15 +46,18 @@ exports.confirmCheckout = async (req, res, next) => {
 
   if (expectedSignature === signature) {
     const booking = await Model.Booking.create({ user, tour, price, orderId, currency, method, contact });
-    const invoiceData = await Model.Booking.findOne({ orderId })
-      .populate({
+    const invoiceData = await Model.Booking.findOne({ orderId }).populate([
+      {
         path: "user",
-        select: "email role",
-      })
-      .populate({
+        select: {
+          email: 1,
+        },
+      },
+      {
         path: "tour",
-      });
-    console.log("INVOICE DATA --->", invoiceData);
+      },
+    ]);
+    console.log("INVOICE DATA ---->", invoiceData);
     // createInvoice(invoiceData);
     res.status(200).json({
       status: "success",
