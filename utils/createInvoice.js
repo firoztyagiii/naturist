@@ -37,8 +37,6 @@ const upload = multer({
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
 
-  doc.pipe(fs.createWriteStream(`invoice-${invoice.id}.pdf`));
-
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
