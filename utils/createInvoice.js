@@ -28,7 +28,9 @@ const createInvoice = function (invoice) {
     if (err) {
       console.log(err);
     } else {
+      console.log("PDF HAS BEEN SAVED, SENDING EMAIL...");
       sendMail(invoice.shipping.email, "Your Invoice", "-", doc);
+      console.log("EMAIL SENT");
     }
   });
 };

@@ -14,7 +14,7 @@ const sendMail = (to, subject, markup, pdf) => {
   if (pdf) {
     msg.attachments = [{ filename: "invoice.pdf", content: pdf, type: "application/pdf", disposition: "attachment" }];
   }
-  console.log("Send email with attachment");
+  console.log("MAIL DATA ===>", msg);
   sgMail.send(msg).catch((err) => {
     console.log(err);
   });
