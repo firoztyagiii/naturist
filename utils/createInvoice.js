@@ -15,6 +15,7 @@ const createInvoice = function (invoice) {
     // const blob = stream.toBlob("application/pdf");
     const url = stream.toBlobURL("application/pdf");
     console.log(url);
+    return url;
   });
 };
 
