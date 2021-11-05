@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const slugify = require("slugify");
 const writeFile = require("../utils/writeFile");
 const emailTemplates = require("../utils/emailTemplates");
+const Cryptr = require("cryptr");
 
 exports.postSignup = async (req, res, next) => {
   try {
@@ -367,28 +368,26 @@ exports.updateMeEmail = async (req, res, next) => {
     }
 
     const user = await Model.User.findOne({ _id: req.user._id });
-    const emailUpdatedAt = user.emailUpdatedAt;
-    const day = 60 * 60 * 24;
 
-    if (emailUpdatedAt) {
+    if (user.emailUpdatedAt) {
+      const day = 60 * 60 * 24;
       const canChangeEmailOn = new Date(emailUpdatedAt).getTime() + 15 * day;
       if (new Date() < new Date(canChangeEmailOn)) {
-        throw new AppError(
-          400,
-          `You can only change email once in 15 days, Last changed at ${new Date(emailUpdatedAt).toString()}`
-        );
+        return false;
+      } else {
+        return true;
       }
     }
 
-    const hash = crypto.randomBytes(64).toString("hex");
-    const encryptedHash = crypto.createHash("sha256").update(hash).digest();
+    const jwtToken = jwt.sign(
+      { user: user._id.toString(), newEmail: email, expiresIn: Date.now() + 1000 * 60 * 10 },
+      process.env.JWTKEY
+    );
 
-    user.upateEmailToken = encryptedHash;
-    user.updateEmailTokenExpires = Date.now() + 60 * 10 * 1000;
-    user.emailToChange = email.trim().toLowerCase();
-    await user.save({ validateBeforeSave: false });
+    const cryptr = new Cryptr(process.env.CRYPTR_KEY);
+    const encryptedHash = cryptr.encrypt(jwtToken);
 
-    const markup = emailTemplates.updateEmail(hash);
+    const markup = emailTemplates.updateEmail(encryptedHash);
 
     sendMail(email, "Update Email Address", markup);
 
@@ -476,29 +475,19 @@ exports.verifyEmail = async (req, res, next) => {
       throw new AppError(400, "Could not find any valid token");
     }
 
-    const encryptedHash = crypto.createHash("sha256").update(token).digest();
+    const cryptr = new Cryptr(process.env.CRYPTR_KEY);
+    const jwtToken = cryptr.decrypt(token);
 
-    const user = await Model.User.findOne({ upateEmailToken: encryptedHash });
+    const tokenPayload = jwt.verify(jwtToken, process.env.JWTKEY);
 
-    if (!user) {
-      throw new AppError(400, "This token does not belong to the user!");
-    }
-
-    if (new Date(user.updateEmailTokenExpires).getTime() < Date.now() || user.updateEmailTokenExpires === "expired") {
-      user.emailToChange = undefined;
-      user.upateEmailToken = undefined;
-      user.updateEmailTokenExpires = undefined;
-      await user.save({ validateBeforeSave: false });
+    if (Date.now() > tokenPayload.expiresIn) {
       throw new AppError(400, "Token has been expired. It was only valid for 10 mins!");
     }
 
-    const changeTo = user.emailToChange;
-    user.email = changeTo;
-    user.emailToChange = undefined;
-    user.upateEmailToken = undefined;
-    user.updateEmailTokenExpires = "expired";
-    user.emailUpdatedAt = Date.now();
-    await user.save({ validateBeforeSave: false });
+    await Model.User.findOneAndUpdate(
+      { _id: tokenPayload.user },
+      { email: tokenPayload.newEmail, emailUpdatedAt: Date.now() }
+    );
 
     res.status(200).json({
       status: "success",

@@ -91,11 +91,6 @@ userSchema.methods.checkPassword = async function (inputPassword, DBPassword) {
   return await bcrypt.compare(inputPassword, DBPassword);
 };
 
-// userSchema.methods.generateOTPandHash = function () {
-//   const hash = crypto.randomBytes(32).toString("hex");
-//   const encryptedHash = crypto.createHash("sha256").update(hash).digest();
-// };
-
 userSchema.methods.isCookieExpired = function (expireTime) {
   return Date.now() / 1000 > expireTime;
 };
