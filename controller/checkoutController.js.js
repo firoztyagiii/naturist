@@ -1,6 +1,7 @@
 const Model = require("../model/allModels");
 const Razorpay = require("razorpay");
 const AppError = require("../utils/error");
+const createInvoice = require("../utils/createInvoice");
 
 const rzrpy = new Razorpay({
   key_id: "rzp_test_iQXxC9LBZRPfH9",
@@ -32,18 +33,28 @@ exports.getCheckoutSession = async (req, res, next) => {
 
 exports.confirmCheckout = async (req, res, next) => {
   const signature = req.headers["x-razorpay-signature"];
-  console.log(req.body.payload);
-  console.log(req.body.payload.payment);
-  console.log(req.body.payload.payment.entity);
   const price = req.body.payload.payment.entity.amount / 100;
   const tour = req.body.payload.payment.entity.notes.referenceId;
   const user = req.body.payload.payment.entity.notes.user;
+  const orderId = req.body.payload.payment.entity.order_id;
+  const currency = req.body.payload.payment.entity.currency;
+  const method = req.body.payload.payment.entity.method;
+  const contact = req.body.payload.payment.entity.contact;
 
   const crypto = require("crypto");
   const expectedSignature = crypto.createHmac("sha256", "kingroot").update(JSON.stringify(req.body)).digest("hex");
 
   if (expectedSignature === signature) {
-    const booking = await Model.Booking.create({ user, tour, price });
+    const booking = await Model.Booking.create({ user, tour, price, orderId, currency, method, contact });
+    const invoiceData = await Model.Booking.findOne({ orderId })
+      .poppulate({
+        path: "user",
+      })
+      .populate({
+        path: "tour",
+      });
+    const pdf = createInvoice(invoiceData);
+    console.log(pdf);
     res.status(200).json({
       status: "success",
       data: {

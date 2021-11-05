@@ -20,6 +20,18 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  orderId: {
+    type: String,
+  },
+  currency: {
+    type: String,
+  },
+  method: {
+    type: String,
+  },
+  contact: {
+    type: String,
+  },
 });
 
 bookingSchema.pre(/^find/, function (next) {
