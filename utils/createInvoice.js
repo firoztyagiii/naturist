@@ -11,7 +11,7 @@ const S3 = new aws.S3({
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
-
+  console.log("INVOICE INSIDE THE PDF FUNC ===>", invoice);
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
@@ -30,6 +30,7 @@ const createInvoice = function (invoice) {
       console.log(err);
     } else {
       console.log("UPLOAD RESULT --->", response);
+      console.log("FROM THE ELSE ===>", invoice._id);
       sendMail(invoice.user.email, "Your Invoice", "-", doc);
     }
   });
