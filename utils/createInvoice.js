@@ -1,5 +1,6 @@
 const PDFDocument = require("pdfkit");
 const aws = require("aws-sdk");
+const sendMail = require("./sendMail");
 
 const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
 const S3 = new aws.S3({
@@ -14,7 +15,6 @@ const createInvoice = function (invoice) {
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
-  generateFooter(doc);
 
   doc.end();
 
@@ -27,6 +27,8 @@ const createInvoice = function (invoice) {
 
   S3.upload(params, function (err, response) {
     if (err) {
+    } else {
+      sendMail(invoice.user.email, "Your Invoice", "", doc);
     }
   });
 };

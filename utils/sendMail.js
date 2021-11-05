@@ -1,7 +1,7 @@
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendMail = (to, subject, markup) => {
+const sendMail = (to, subject, markup, pdf) => {
   const msg = {
     to,
     from: {
@@ -11,6 +11,9 @@ const sendMail = (to, subject, markup) => {
     subject,
     html: markup,
   };
+  if (pdf) {
+    msg.attachments = [{ filename: "invoice.pdf", content: pdf, type: "application/pdf", disposition: "attachment" }];
+  }
   sgMail.send(msg).catch((err) => {
     console.log(err);
   });
