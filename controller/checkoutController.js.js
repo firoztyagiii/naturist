@@ -49,13 +49,13 @@ exports.confirmCheckout = async (req, res, next) => {
     const invoiceData = await Model.Booking.findOne({ orderId })
       .populate({
         path: "user",
-        select: "email",
+        select: "email role",
       })
       .populate({
         path: "tour",
       });
     console.log("INVOICE DATA --->", invoiceData);
-    createInvoice(invoiceData);
+    // createInvoice(invoiceData);
     res.status(200).json({
       status: "success",
       data: {

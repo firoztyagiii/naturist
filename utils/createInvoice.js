@@ -19,7 +19,7 @@ const createInvoice = function (invoice) {
   doc.end();
 
   var params = {
-    Key: `invoice-${invoice._id}.pdf`,
+    Key: `invoice-${invoice._id.toString()}.pdf`,
     Body: doc,
     Bucket: process.env.SPACES_BUCKET_NAME,
     ContentType: "application/pdf",
