@@ -32,6 +32,9 @@ exports.getCheckoutSession = async (req, res, next) => {
 
 exports.confirmCheckout = async (req, res, next) => {
   const signature = req.headers["x-razorpay-signature"];
+  console.log(req.body.payload);
+  console.log(req.body.payload.payment);
+  console.log(req.body.payload.payment.entity);
   const price = req.body.payload.payment.entity.amount / 100;
   const tour = req.body.payload.payment.entity.notes.referenceId;
   const user = req.body.payload.payment.entity.notes.user;

@@ -371,11 +371,14 @@ exports.updateMeEmail = async (req, res, next) => {
 
     if (user.emailUpdatedAt) {
       const day = 60 * 60 * 24;
-      const canChangeEmailOn = new Date(emailUpdatedAt).getTime() + 15 * day;
+      const canChangeEmailOn = new Date(user.emailUpdatedAt).getTime() + 15 * day;
       if (new Date() < new Date(canChangeEmailOn)) {
-        return false;
-      } else {
-        return true;
+        throw new AppError(
+          400,
+          `You can only change your email once in 15 days, Last changed at ${new Date(
+            user.emailUpdatedAt
+          ).toLocaleString("en-US")}`
+        );
       }
     }
 
@@ -386,6 +389,8 @@ exports.updateMeEmail = async (req, res, next) => {
 
     const cryptr = new Cryptr(process.env.CRYPTR_KEY);
     const encryptedHash = cryptr.encrypt(jwtToken);
+
+    await Model.Token.create({ token: encryptedHash, createAt: Date.now() });
 
     const markup = emailTemplates.updateEmail(encryptedHash);
 
@@ -475,12 +480,26 @@ exports.verifyEmail = async (req, res, next) => {
       throw new AppError(400, "Could not find any valid token");
     }
 
+    const isTokenAvailable = await Model.Token.findOne({ token });
+
+    if (!isTokenAvailable) {
+      throw new AppError(400, "Invalid token or expired");
+    }
+
     const cryptr = new Cryptr(process.env.CRYPTR_KEY);
     const jwtToken = cryptr.decrypt(token);
 
     const tokenPayload = jwt.verify(jwtToken, process.env.JWTKEY);
 
+    const user = await Model.User.findOne({ _id: tokenPayload.user });
+
+    if (!user) {
+      await Model.Token.findOneAndDelete({ token: token });
+      throw new AppError(400, "Token does not belong to the user");
+    }
+
     if (Date.now() > tokenPayload.expiresIn) {
+      await Model.Token.findOneAndDelete({ token: token });
       throw new AppError(400, "Token has been expired. It was only valid for 10 mins!");
     }
 
@@ -488,6 +507,8 @@ exports.verifyEmail = async (req, res, next) => {
       { _id: tokenPayload.user },
       { email: tokenPayload.newEmail, emailUpdatedAt: Date.now() }
     );
+
+    await Model.Token.findOneAndDelete({ token: token });
 
     res.status(200).json({
       status: "success",
@@ -497,22 +518,3 @@ exports.verifyEmail = async (req, res, next) => {
     next(err);
   }
 };
-
-// exports.topFive = async (req, res, next) => {
-//   const data = await Model.Tour.aggregate([
-//     {
-//       $match: { price: { $gt: 1200 } },
-//     },
-//     { $project: { name: 1, price: 1, difficulty: 1 } },
-//     {
-//       $group: {
-//         _id: "$difficulty",
-//         totalItems: { $sum: 1 },
-//         averagePrice: { $avg: "$price" },
-//         averageGroupSize: { $avg: "$groupSize" },
-//       },
-//     },
-//     { $sort: { totalItems: -1 } },
-//   ]);
-//   res.json({ data });
-// };
