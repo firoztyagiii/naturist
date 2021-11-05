@@ -1,4 +1,6 @@
+const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const path = require("path");
 const blobStream = require("blob-stream");
 
 const createInvoice = function (invoice) {
@@ -11,12 +13,7 @@ const createInvoice = function (invoice) {
   generateFooter(doc);
 
   doc.end();
-  stream.on("finish", function () {
-    // const blob = stream.toBlob("application/pdf");
-    const url = stream.toBlobURL("application/pdf");
-    console.log(url);
-    return url;
-  });
+  doc.pipe(fs.createWriteStream(path.join(__dirname, `../public/uploads/invoices/invoice-${invoice._id}.pdf`)));
 };
 
 function generateHeader(doc) {
