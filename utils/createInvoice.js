@@ -1,4 +1,5 @@
 const PDFDocument = require("pdfkit");
+const fs = require("fs");
 const multer = require("multer");
 const aws = require("aws-sdk");
 const slugify = require("slugify");
