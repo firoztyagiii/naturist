@@ -58,7 +58,7 @@ exports.confirmCheckout = async (req, res, next) => {
       },
     ]);
     console.log("INVOICE DATA ---->", invoiceData);
-    // createInvoice(invoiceData);
+    createInvoice(invoiceData);
     res.status(200).json({
       status: "success",
       data: {
