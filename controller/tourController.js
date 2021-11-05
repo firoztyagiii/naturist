@@ -1,8 +1,7 @@
 const Model = require("../model/allModels");
 const AppError = require("../utils/error");
 const filterQuery = require("../utils/filterQuery");
-const writeFile = require("../utils/writeFile");
-const slugify = require("slugify");
+const upload = require("../utils/uploadFiles");
 
 exports.isNameExisted = async (req, res, next) => {
   try {
@@ -23,17 +22,13 @@ exports.postTour = async (req, res, next) => {
     }
     const { name, location, difficulty, price, groupSize, info, description, tourLength, dates } = req.body;
 
-    const filename = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${req.file.originalname.split(".")[1]}`;
+    const uploadFileData = upload.single("headImg");
 
-    const finalName = slugify(filename, {
-      replacement: "-",
-      lower: false,
-      trim: true,
+    let headImg;
+    uploadFileData((req, res, err) => {
+      if (err) throw new AppError(400, "Could not upload the file, Please try again later");
+      headImg = req.location;
     });
-
-    writeFile(req.file.buffer, finalName);
-
-    const headImg = `uploads/${finalName}`;
 
     const tour = await Model.Tour.create({
       name,

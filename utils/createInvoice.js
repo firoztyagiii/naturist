@@ -5,7 +5,6 @@ const blobStream = require("blob-stream");
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
-  const stream = doc.pipe(blobStream());
 
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
