@@ -155,7 +155,7 @@ const generateInvoiceData = (data) => {
     },
     items: [
       {
-        item: data.tour.name,
+        item: data.tour.name.toUpperCase(),
         description: "Tour",
         quantity: 1,
         amount: data.price,
