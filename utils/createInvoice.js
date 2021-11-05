@@ -1,37 +1,11 @@
 const PDFDocument = require("pdfkit");
-const fs = require("fs");
-const multer = require("multer");
 const aws = require("aws-sdk");
-const slugify = require("slugify");
-const multerS3 = require("multer-s3");
 
 const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
 const S3 = new aws.S3({
   endpoint: spacesEndpoint,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
-
-const upload = multer({
-  storage: multerS3({
-    s3: S3,
-    bucket: process.env.SPACES_BUCKET_NAME,
-    acl: "public-read",
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      const uploadName = `${file.originalname.split(".")[0]}-${Date.now().toString()}.${
-        file.originalname.split(".")[1]
-      }`;
-      const finalName = slugify(uploadName, {
-        replacement: "-",
-        lower: false,
-        trim: true,
-      });
-      cb(null, finalName);
-    },
-  }),
 });
 
 const createInvoice = function (invoice) {
@@ -45,7 +19,7 @@ const createInvoice = function (invoice) {
   doc.end();
 
   var params = {
-    Key: `invoice-${invoice.id}.pdf`,
+    Key: `invoice-${invoice._id}.pdf`,
     Body: doc,
     Bucket: process.env.SPACES_BUCKET_NAME,
     ContentType: "application/pdf",
@@ -53,9 +27,7 @@ const createInvoice = function (invoice) {
 
   S3.upload(params, function (err, response) {
     if (err) {
-      console.log("PDFKIT --->", err);
     }
-    console.log("PDFKIT RESPONSE --->", response);
   });
 };
 
@@ -160,7 +132,7 @@ function generateHr(doc, y) {
 }
 
 function formatCurrency(cents) {
-  return "$" + (cents / 100).toFixed(2);
+  return "$" + cents;
 }
 
 function formatDate(date) {
