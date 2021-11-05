@@ -17,10 +17,10 @@ const upload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: function (req, file, cb) {
-      const file = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
+      const uploadName = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
         req.file.originalname.split(".")[1]
       }`;
-      const finalName = slugify(file, {
+      const finalName = slugify(uploadName, {
         replacement: "-",
         lower: false,
         trim: true,
