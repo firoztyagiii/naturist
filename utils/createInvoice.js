@@ -45,10 +45,10 @@ const createInvoice = function (invoice) {
   doc.end();
 
   var params = {
-    key: `invoice-${invoice.id}.pdf`,
-    body: doc,
-    bucket: process.env.SPACES_BUCKET_NAME,
-    contentType: "application/pdf",
+    Key: `invoice-${invoice.id}.pdf`,
+    Body: doc,
+    Bucket: process.env.SPACES_BUCKET_NAME,
+    ContentType: "application/pdf",
   };
 
   S3.upload(params, function (err, response) {
