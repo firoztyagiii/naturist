@@ -1,10 +1,42 @@
-const fs = require("fs");
 const PDFDocument = require("pdfkit");
-const path = require("path");
-const blobStream = require("blob-stream");
+const multer = require("multer");
+const aws = require("aws-sdk");
+const slugify = require("slugify");
+const multerS3 = require("multer-s3");
+
+const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
+const S3 = new aws.S3({
+  endpoint: spacesEndpoint,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+const upload = multer({
+  storage: multerS3({
+    s3: S3,
+    bucket: process.env.SPACES_BUCKET_NAME,
+    acl: "public-read",
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: function (req, file, cb) {
+      const uploadName = `${file.originalname.split(".")[0]}-${Date.now().toString()}.${
+        file.originalname.split(".")[1]
+      }`;
+      const finalName = slugify(uploadName, {
+        replacement: "-",
+        lower: false,
+        trim: true,
+      });
+      cb(null, finalName);
+    },
+  }),
+});
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
+
+  doc.pipe(fs.createWriteStream(`invoice-${invoice.id}.pdf`));
 
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
@@ -12,7 +44,20 @@ const createInvoice = function (invoice) {
   generateFooter(doc);
 
   doc.end();
-  doc.pipe(fs.createWriteStream(path.join(__dirname, `../public/uploads/invoices/invoice-${invoice._id}.pdf`)));
+
+  var params = {
+    key: `invoice-${invoice.id}.pdf`,
+    body: doc,
+    bucket: process.env.SPACES_BUCKET_NAME,
+    contentType: "application/pdf",
+  };
+
+  S3.upload(params, function (err, response) {
+    if (err) {
+      console.log("PDFKIT --->", err);
+    }
+    console.log("PDFKIT RESPONSE --->", response);
+  });
 };
 
 function generateHeader(doc) {
