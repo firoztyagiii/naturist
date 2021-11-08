@@ -1,6 +1,8 @@
 const PDFDocument = require("pdfkit");
 const aws = require("aws-sdk");
 const sendMail = require("./sendMail");
+const pdf2Base64 = require("pdf-to-base64");
+const Model = require("../model/allModels");
 
 const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
 const S3 = new aws.S3({
@@ -11,26 +13,26 @@ const S3 = new aws.S3({
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
+
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
   generateFooter(doc);
   doc.end();
-
   var params = {
     Key: `invoice-${invoice.shipping.invoiceId}.pdf`,
     Body: doc,
     Bucket: process.env.SPACES_BUCKET_NAME,
     ContentType: "application/pdf",
+    ACL: "public-read",
   };
 
-  S3.upload(params, function (err, response) {
+  S3.upload(params, async function (err, response) {
     if (err) {
       console.log(err);
     } else {
-      const base64File = new Buffer(doc).toString("base64");
-      console.log("SEND MAIL ARGS --->", invoice.shipping.email, base64File);
-      sendMail(invoice.shipping.email, "Your Invoice", "-", doc);
+      const baseFile = await pdf2Base64(response.Location);
+      sendMail(invoice.shipping.email, "Your Invoice", "-", baseFile);
     }
   });
 };
@@ -159,8 +161,8 @@ const generateInvoiceData = (data) => {
     },
     items: [
       {
-        item: data.tour.name.toUpperCase(),
-        description: "Tour",
+        item: data.tour.name,
+        description: "TOUR",
         quantity: 1,
         amount: data.price,
       },
