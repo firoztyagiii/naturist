@@ -17,15 +17,16 @@ const upload = multer({
     acl: "public-read",
 
     key: function (req, file, cb) {
-      // const uploadName = `${file.originalname.split(".")[0]}-${Date.now().toString()}.${
-      //   file.originalname.split(".")[1]
-      // }`;
-      // const finalName = slugify(uploadName, {
-      //   replacement: "-",
-      //   lower: false,
-      //   trim: true,
-      // });
-      cb(null, Date.now().toString());
+      const uploadName = `${file.originalname.split(".")[0]}-${Date.now().toString()}.${
+        file.originalname.split(".")[1]
+      }`;
+      const finalName = slugify(uploadName, {
+        replacement: "-",
+        lower: false,
+        remove: /[*+~()/'"!:@]/g,
+        trim: true,
+      });
+      cb(null, finalName);
     },
   }),
 });

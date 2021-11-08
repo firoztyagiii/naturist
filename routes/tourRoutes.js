@@ -8,7 +8,7 @@ const upload = require("../utils/uploadFiles");
 router
   .route("/")
   .get(tourController.getTours)
-  .post(upload.single("headImg"), validate.checkBody, validate.areErrors, tourController.postTour);
+  .post(validate.checkBody, validate.areErrors, upload.single("headImg"), tourController.postTour);
 
 router.route("/:id").patch(tourController.patchTour).delete(tourController.deleteTour).get(tourController.getTour);
 

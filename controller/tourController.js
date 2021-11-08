@@ -23,6 +23,9 @@ exports.postTour = async (req, res, next) => {
     }
     const { name, location, difficulty, price, groupSize, info, description, tourLength, dates } = req.body;
 
+    const nameArray = req.file.location.split("/");
+    const imgName = nameArray[nameArray.length - 1];
+
     const tour = await Model.Tour.create({
       name,
       location,
@@ -33,7 +36,7 @@ exports.postTour = async (req, res, next) => {
       description,
       tourLength,
       dates,
-      headImg: req.file.location,
+      headImg: imgName,
     });
 
     res.status(201).json({
