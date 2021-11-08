@@ -14,6 +14,7 @@ const createInvoice = function (invoice) {
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
+  generateFooter(doc);
   doc.end();
 
   var params = {
@@ -115,9 +116,7 @@ function generateInvoiceTable(doc, invoice) {
 }
 
 function generateFooter(doc) {
-  doc
-    .fontSize(10)
-    .text("Payment is due within 15 days. Thank you for your business.", 50, 780, { align: "center", width: 500 });
+  doc.fontSize(10).text("Leave your worries behind and enjoy you trip", 50, 780, { align: "center", width: 500 });
 }
 
 function generateTableRow(doc, y, item, description, unitCost, quantity, lineTotal) {
@@ -155,7 +154,7 @@ const generateInvoiceData = (data) => {
       state: "",
       country: "",
       postal_code: "",
-      email: data.email,
+      email: data.user.email,
       invoiceId: data._id,
     },
     items: [
