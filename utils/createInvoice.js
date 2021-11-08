@@ -27,11 +27,9 @@ const createInvoice = function (invoice) {
     if (err) {
       console.log(err);
     } else {
-      console.log("PDF HAS BEEN SAVED, SENDING EMAIL...");
-      console.log(response);
-      console.log("SEND MAIL ARGS --->", invoice.shipping.mail, doc);
+      const base64File = new Buffer(doc).toString("base64");
+      console.log("SEND MAIL ARGS --->", invoice.shipping.email, base64File);
       sendMail(invoice.shipping.email, "Your Invoice", "-", doc);
-      console.log("EMAIL SENT");
     }
   });
 };
