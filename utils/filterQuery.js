@@ -17,6 +17,9 @@ const filterAPI = async (queryObject, model) => {
   });
   let query;
   query = model.find(newQueryObject);
+  if (queryObject.search) {
+    query = query.find({ $text: { $search: queryObject.search } });
+  }
   if (queryObject.minprice) {
     const minPrice = queryObject.minprice * 1;
     query = query.find({ price: { $gt: minPrice } });

@@ -86,6 +86,8 @@ const tourSchema = new mongoose.Schema({
 tourSchema.set("toObject", { virtuals: true });
 tourSchema.set("toJSON", { virtuals: true });
 
+tourSchema.index({ name: "text" });
+
 tourSchema.statics.deleteReviews = async function (tour) {
   const tourId = tour._id;
   await Model.Review.deleteMany({ tour: tourId });

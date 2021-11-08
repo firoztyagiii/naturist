@@ -14,7 +14,6 @@ const createInvoice = function (invoice) {
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
-
   doc.end();
 
   var params = {
@@ -29,6 +28,8 @@ const createInvoice = function (invoice) {
       console.log(err);
     } else {
       console.log("PDF HAS BEEN SAVED, SENDING EMAIL...");
+      console.log(response);
+      console.log("SEND MAIL ARGS --->", invoice.shipping.mail, doc);
       sendMail(invoice.shipping.email, "Your Invoice", "-", doc);
       console.log("EMAIL SENT");
     }
