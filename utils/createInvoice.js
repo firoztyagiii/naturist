@@ -32,6 +32,7 @@ const createInvoice = function (invoice) {
       console.log(err);
     } else {
       const baseFile = await pdf2Base64(response.Location);
+      await Model.Booking.findOneAndUpdate({ _id: invoice.shipping.invoiceId }, { invoice: response.Location });
       sendMail(invoice.shipping.email, "Your Invoice", "-", baseFile);
     }
   });

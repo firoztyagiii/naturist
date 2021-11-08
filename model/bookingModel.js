@@ -32,6 +32,7 @@ const bookingSchema = new mongoose.Schema({
   contact: {
     type: String,
   },
+  invoice: String,
 });
 
 bookingSchema.pre(/^find/, function (next) {
