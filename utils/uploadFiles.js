@@ -15,9 +15,7 @@ const upload = multer({
     s3: S3,
     bucket: process.env.SPACES_BUCKET_NAME,
     acl: "public-read",
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
+
     key: function (req, file, cb) {
       // const uploadName = `${file.originalname.split(".")[0]}-${Date.now().toString()}.${
       //   file.originalname.split(".")[1]
@@ -27,7 +25,7 @@ const upload = multer({
       //   lower: false,
       //   trim: true,
       // });
-      cb(null, "somerandomnameforuserimg");
+      cb(null, Date.now().toString());
     },
   }),
 });
