@@ -8,7 +8,7 @@ const tourSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
     required: [true, "Tour name is required"],
-    unique: true,
+    unique: [true, "Name must be unique"],
     maxlength: [20, "Name cannnot be exceeded more than 20 characters"],
     minlength: [10, "Name must have atleast 10 characters"],
   },
@@ -71,12 +71,19 @@ const tourSchema = new mongoose.Schema({
   slug: {
     type: String,
   },
-  dates: [
-    {
-      type: Date,
-      required: [true, "At least 1 date is required"],
+  dates: {
+    type: [String],
+    required: true,
+    validate: {
+      validator: (v) => {
+        if (v.length == 0) {
+          return false;
+        }
+        return v.every((el) => el != "");
+      },
+      message: "At least 1 date is required",
     },
-  ],
+  },
   headImg: {
     type: String,
     required: [true, "Head image is required"],

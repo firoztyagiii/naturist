@@ -1,8 +1,16 @@
 const Model = require("../model/allModels");
 const AppError = require("../utils/error");
 const filterQuery = require("../utils/filterQuery");
-const writeFile = require("../utils/writeFile");
+
+const aws = require("aws-sdk");
 const slugify = require("slugify");
+
+const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
+const S3 = new aws.S3({
+  endpoint: spacesEndpoint,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 exports.isNameExisted = async (req, res, next) => {
   try {
@@ -22,9 +30,7 @@ exports.postTour = async (req, res, next) => {
       throw new AppError(400, "Head Img is required");
     }
     const { name, location, difficulty, price, groupSize, info, description, tourLength, dates } = req.body;
-
-    const nameArray = req.file.location.split("/");
-    const imgName = nameArray[nameArray.length - 1];
+    // const purifedDates = JSON.parse(dates);
 
     const tour = await Model.Tour.create({
       name,
@@ -36,17 +42,55 @@ exports.postTour = async (req, res, next) => {
       description,
       tourLength,
       dates,
-      headImg: imgName,
+      headImg: "w",
     });
 
+    req.tour = tour;
+    next();
+  } catch (err) {
+    // console.log(err);
+    next(err);
+  }
+};
+
+exports.uploadImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new AppError(400, "Head Img is required");
+    }
+
+    const uploadName = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
+      req.file.originalname.split(".")[1]
+    }`;
+
+    const finalName = slugify(uploadName, {
+      replacement: "-",
+      lower: false,
+      remove: /[*+~()/'"!:@]/g,
+      trim: true,
+    });
+
+    const params = {
+      Key: finalName,
+      Body: req.file.buffer,
+      Bucket: process.env.SPACES_BUCKET_NAME,
+      ContentType: "image/*",
+      ACL: "public-read",
+    };
+
+    const response = await S3.upload(params).promise();
+    const newTour = await Model.Tour.findOneAndUpdate(
+      { _id: req.tour._id },
+      { headImg: response.Location },
+      { new: true }
+    );
     res.status(201).json({
       status: "success",
       data: {
-        tour,
+        newTour,
       },
     });
   } catch (err) {
-    // console.log(err);
     next(err);
   }
 };

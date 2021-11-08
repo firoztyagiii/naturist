@@ -21,6 +21,10 @@ module.exports = (err, req, res, next) => {
       msg.push(`${key}: ${err.keyValue[key]} already exists!`);
     }
     message.push(msg);
+  } else if (err.code == 11000 && err.name == "MongoServerError") {
+    for (key in err.keyValue) {
+      message.push(`${err.keyValue[key]} named tour already exists`);
+    }
   }
 
   const errorCode = err.errorCode ? err.errorCode : 400;
