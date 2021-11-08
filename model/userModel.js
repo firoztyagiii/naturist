@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  profilePhoto: { type: String, default: "uploads/default-img.png" },
+  profilePhoto: { type: String, default: "default-img.png" },
   passwordResetToken: String,
   passwordResetTokenExpires: Date,
   activationToken: {

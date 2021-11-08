@@ -407,29 +407,30 @@ exports.updateMeEmail = async (req, res, next) => {
 
 exports.updateMePhoto = async (req, res, next) => {
   try {
-    if (!req.file) {
-      throw new AppError(400, "Photo is required");
-    }
+    console.log("FILE FROM UPDATEME --->", req.file);
+    // if (!req.file) {
+    //   throw new AppError(400, "Photo is required");
+    // }
 
-    const name = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
-      req.file.originalname.split(".")[1]
-    }`;
+    // const name = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
+    //   req.file.originalname.split(".")[1]
+    // }`;
 
-    const lastName = slugify(name, {
-      replacement: "-",
-      lower: false,
-      trim: true,
-    });
+    // const lastName = slugify(name, {
+    //   replacement: "-",
+    //   lower: false,
+    //   trim: true,
+    // });
 
-    writeFile(req.file.buffer, lastName);
+    // writeFile(req.file.buffer, lastName);
 
-    const photo = `uploads/${finalName}`;
-    console.log(photo);
-    await Model.User.findOneAndUpdate(req.user._id, { profilePhoto: photo });
-    res.status(201).json({
-      status: "success",
-      message: "Profile photo changed successfully",
-    });
+    // const photo = `uploads/${finalName}`;
+    // console.log(photo);
+    // await Model.User.findOneAndUpdate(req.user._id, { profilePhoto: photo });
+    // res.status(201).json({
+    //   status: "success",
+    //   message: "Profile photo changed successfully",
+    // });
   } catch (err) {
     next(err);
   }
