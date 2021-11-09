@@ -4,11 +4,14 @@ const reviewRouter = require("../routes/reviewRoutes");
 const bookmarkRouter = require("./bookmarkRoutes");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
+const validateTourData = require("../utils/validateTourData");
 
-router
-  .route("/")
-  .get(tourController.getTours)
-  .post(upload.single("headImg"), tourController.postTour, tourController.uploadImage);
+const multipleUploads = upload.fields([
+  { name: "headImg", maxCount: 1 },
+  { name: "images", maxCount: 3 },
+]);
+
+router.route("/").get(tourController.getTours).post(multipleUploads, validateTourData, tourController.postTour);
 
 router.route("/:id").patch(tourController.patchTour).delete(tourController.deleteTour).get(tourController.getTour);
 

@@ -1,13 +1,12 @@
+const jwt = require("jsonwebtoken");
+const validator = require("validator");
+const crypto = require("crypto");
+const Cryptr = require("cryptr");
+
+const sendMail = require("../utils/sendMail");
 const Model = require("../model/allModels");
 const AppError = require("../utils/error");
-const sendMail = require("../utils/sendMail");
-const crypto = require("crypto");
-const validator = require("validator");
-const jwt = require("jsonwebtoken");
-const slugify = require("slugify");
-const writeFile = require("../utils/writeFile");
 const emailTemplates = require("../utils/emailTemplates");
-const Cryptr = require("cryptr");
 
 exports.postSignup = async (req, res, next) => {
   try {

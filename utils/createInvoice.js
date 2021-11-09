@@ -1,15 +1,9 @@
 const PDFDocument = require("pdfkit");
-const aws = require("aws-sdk");
-const sendMail = require("./sendMail");
 const pdf2Base64 = require("pdf-to-base64");
-const Model = require("../model/allModels");
+const S3 = require("../utils/S3Config");
 
-const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
-const S3 = new aws.S3({
-  endpoint: spacesEndpoint,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
+const sendMail = require("./sendMail");
+const Model = require("../model/allModels");
 
 const createInvoice = function (invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -19,7 +13,8 @@ const createInvoice = function (invoice) {
   generateInvoiceTable(doc, invoice);
   generateFooter(doc);
   doc.end();
-  var params = {
+
+  const params = {
     Key: `invoice-${invoice.shipping.invoiceId}.pdf`,
     Body: doc,
     Bucket: process.env.SPACES_BUCKET_NAME,

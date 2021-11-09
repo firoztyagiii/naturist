@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+
 const Model = require("./allModels");
 
 const tourSchema = new mongoose.Schema({
@@ -76,17 +77,29 @@ const tourSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (v) => {
-        if (v.length == 0) {
+        if (v.length < 3) {
           return false;
         }
         return v.every((el) => el != "");
       },
-      message: "At least 1 date is required",
+      message: "At least 3 date are required",
     },
   },
   headImg: {
     type: String,
     required: [true, "Head image is required"],
+  },
+  images: {
+    type: [String],
+    required: [true, "3 images are required"],
+    validate: {
+      validator: (v) => {
+        if (v.length < 3) {
+          return false;
+        }
+      },
+      message: "3 images are required",
+    },
   },
 });
 

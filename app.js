@@ -1,5 +1,4 @@
 const dotenv = require("dotenv");
-
 dotenv.config({
   path: "./config.env",
 });
@@ -20,7 +19,8 @@ const reviewRoute = require("./routes/reviewRoutes");
 const bookmarkRoute = require("./routes/bookmarkRoutes");
 const checkoutRoute = require("./routes/checkoutRoute");
 const bookingRoute = require("./routes/bookingRoutes");
-const confirmCheckout = require("./controller/checkoutController.js");
+const confirmCheckout = require("./controller/checkoutController");
+
 const app = express();
 
 app.use(
@@ -38,10 +38,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   express.urlencoded({
-    extended: true,
+    extended: false,
   })
 );
-app.use(express.static("public"));
 
 //API Endpoints
 

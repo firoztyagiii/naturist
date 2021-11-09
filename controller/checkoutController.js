@@ -1,5 +1,6 @@
-const Model = require("../model/allModels");
 const Razorpay = require("razorpay");
+
+const Model = require("../model/allModels");
 const AppError = require("../utils/error");
 const createInvoice = require("../utils/createInvoice");
 
