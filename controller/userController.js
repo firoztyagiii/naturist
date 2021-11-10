@@ -406,9 +406,31 @@ exports.updateMeEmail = async (req, res, next) => {
 
 exports.updateMePhoto = async (req, res, next) => {
   try {
-    const nameArray = req.file.location.split("/");
-    const imgName = nameArray[nameArray.length - 1];
-    await Model.User.findOneAndUpdate(req.user._id, { profilePhoto: imgName });
+    if (req.file) {
+      throw new AppError(400, "Please select an image");
+    }
+    const uploadName = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
+      req.file.originalname.split(".")[1]
+    }`;
+
+    const finalName = slugify(uploadName, {
+      replacement: "-",
+      lower: false,
+      remove: /[*+~()/'"!:@]/g,
+      trim: true,
+    });
+
+    const params = {
+      Key: finalName,
+      Body: req.file.buffer,
+      Bucket: process.env.SPACES_BUCKET_NAME,
+      ContentType: "image/*",
+      ACL: "public-read",
+    };
+    const response = await S3.upload(params).promise();
+    // const nameArray = req.file.location.split("/");
+    // const imgName = nameArray[nameArray.length - 1];
+    await Model.User.findOneAndUpdate(req.user._id, { profilePhoto: response.Location });
     res.status(201).json({
       status: "success",
       message: "Profile photo changed successfully",
