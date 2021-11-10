@@ -106,7 +106,7 @@ const tourSchema = new mongoose.Schema({
 tourSchema.set("toObject", { virtuals: true });
 tourSchema.set("toJSON", { virtuals: true });
 
-tourSchema.index({ name: "text" });
+tourSchema.index({ name: "text", location: "text" });
 
 tourSchema.statics.deleteReviews = async function (tour) {
   const tourId = tour._id;

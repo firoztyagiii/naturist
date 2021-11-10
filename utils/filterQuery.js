@@ -50,6 +50,8 @@ const filterAPI = async (queryObject, model) => {
   if (queryObject.sort) {
     const sortData = queryObject.sort.split(",").join(" ");
     query = query.sort(sortData);
+  } else {
+    query = query.sort("-_id");
   }
   if (queryObject.select) {
     const selectData = queryObject.select.split(",").join(" ");
