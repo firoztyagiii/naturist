@@ -406,9 +406,13 @@ exports.updateMeEmail = async (req, res, next) => {
 
 exports.updateMePhoto = async (req, res, next) => {
   try {
-    if (req.file) {
+    if (!req.file) {
       throw new AppError(400, "Please select an image");
     }
+    console.log("FILE --->", req.file);
+
+    return;
+
     const uploadName = `${req.file.originalname.split(".")[0]}-${Date.now().toString()}.${
       req.file.originalname.split(".")[1]
     }`;
