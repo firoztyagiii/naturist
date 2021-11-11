@@ -90,17 +90,12 @@ exports.postLogin = async (req, res, next) => {
       expiresIn: "1h",
     });
 
-    const cookiesConfig = {
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
       maxAge: 3600 * 1000,
-    };
-
-    if (process.env.NODE_ENV === "production") {
-      cookiesConfig.httpOnly = true;
-      cookiesConfig.secure = true;
-      cookiesConfig.sameSite = "none";
-    }
-
-    res.cookie("jwt", token);
+    });
 
     res.status(200).json({
       status: "success",
