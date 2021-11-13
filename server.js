@@ -7,7 +7,7 @@ const init = async () => {
       `mongodb+srv://naturist:123454321%40%23@cluster0.n1nxw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
     );
     app.listen(process.env.PORT, () => {
-      console.log("Connected and listening");
+      console.log("Connected and listening to 5000");
     });
   } catch (err) {
     console.log(err);

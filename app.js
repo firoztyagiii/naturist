@@ -26,7 +26,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: "https://naturist-front.herokuapp.com",
+    origin: "https://softdownloads.net",
   })
 );
 
