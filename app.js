@@ -26,8 +26,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.NODE_ENV === "production" ? "https://naturist-front.herokuapp.com" : "http://127.0.0.1:5500",
-    allowedHeaders: "Content-Type,*",
+    origin: "https://naturist-front.herokuapp.com",
   })
 );
 

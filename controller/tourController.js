@@ -112,3 +112,20 @@ exports.getTour = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getInvoice = async (req, res, next) => {
+  try {
+    const tour = await Model.Booking.findOne({ tour: req.params.tourId, user: req.user._id });
+    if (!tour) {
+      throw new AppError(403, "This tour does not belong to you");
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        invoice: tour.invoice,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
