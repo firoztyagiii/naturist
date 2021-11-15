@@ -415,7 +415,7 @@ exports.updateMePhoto = async (req, res, next) => {
     if (!req.file) {
       throw new AppError(400, "Please select an image");
     }
-    await Model.User.findOneAndUpdate(req.user._id, { profilePhoto: req.file.location });
+    await Model.User.findOneAndUpdate({ _id: req.user._id }, { profilePhoto: req.file.location });
     res.status(201).json({
       status: "success",
       message: "Profile photo changed successfully",
